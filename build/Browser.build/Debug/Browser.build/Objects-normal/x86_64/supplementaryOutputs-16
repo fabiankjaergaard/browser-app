@@ -1,0 +1,18 @@
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/DerivedSources/GeneratedAssetSymbols.swift":
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.o"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftdeps"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.d"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftconstvalues"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.dia"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/HistoryViewController.swift":
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.dia"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.swiftdeps"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.swiftconstvalues"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.o"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/TabManager.swift":
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.dia"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.swiftdeps"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.o"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.swiftconstvalues"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.d"

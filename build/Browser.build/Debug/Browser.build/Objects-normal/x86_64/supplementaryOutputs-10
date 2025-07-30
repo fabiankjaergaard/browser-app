@@ -1,0 +1,24 @@
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Models/Space.swift":
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.swiftconstvalues"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.d"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.swiftdeps"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.o"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.dia"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/NotesWidget.swift":
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.o"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.swiftdeps"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.swiftconstvalues"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.dia"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.d"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Utilities/WidgetSettings.swift":
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.swiftconstvalues"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.dia"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.o"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.swiftdeps"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/WidgetToggleCard.swift":
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.swiftconstvalues"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.swiftdeps"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.o"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.dia"

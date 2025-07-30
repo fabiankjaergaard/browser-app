@@ -1,0 +1,24 @@
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/RecentSitesWidget.swift":
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/RecentSitesWidget.swiftdeps"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/RecentSitesWidget.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/RecentSitesWidget.dia"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/RecentSitesWidget.swiftconstvalues"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/RecentSitesWidget.o"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Models/Tab.swift":
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/Tab.swiftconstvalues"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/Tab.o"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/Tab.swiftdeps"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/Tab.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/Tab.dia"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/BookmarkBar.swift":
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/BookmarkBar.swiftconstvalues"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/BookmarkBar.swiftdeps"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/BookmarkBar.dia"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/BookmarkBar.o"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/BookmarkBar.d"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/AISidebarViewController.swift":
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/AISidebarViewController.d"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/AISidebarViewController.o"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/AISidebarViewController.swiftdeps"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/AISidebarViewController.dia"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/AISidebarViewController.swiftconstvalues"

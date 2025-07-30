@@ -1,0 +1,24 @@
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/BrowserWindowController.swift":
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.swiftdeps"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.o"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.swiftconstvalues"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.dia"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.d"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/ContentViewController.swift":
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.swiftdeps"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.swiftconstvalues"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.o"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.dia"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/SidebarFavoritesView.swift":
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.swiftdeps"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.swiftconstvalues"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.dia"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.o"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/SidebarTabView.swift":
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.o"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.d"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.swiftdeps"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.dia"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.swiftconstvalues"

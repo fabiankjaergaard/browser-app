@@ -1,0 +1,18 @@
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/ViewController.swift":
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ViewController.swiftconstvalues"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ViewController.o"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ViewController.swiftdeps"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ViewController.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ViewController.dia"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Utilities/ColorManager.swift":
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ColorManager.d"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ColorManager.swiftconstvalues"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ColorManager.o"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ColorManager.dia"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/ColorManager.swiftdeps"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/WeatherWidget.swift":
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/WeatherWidget.o"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/WeatherWidget.swiftconstvalues"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/WeatherWidget.swiftdeps"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/WeatherWidget.dia"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/arm64/WeatherWidget.d"

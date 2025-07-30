@@ -1,0 +1,24 @@
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/BlankStartViewController.swift":
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.dia"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.d"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.o"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.swiftconstvalues"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.swiftdeps"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/QuoteWidget.swift":
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.d"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.dia"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.swiftconstvalues"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.o"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.swiftdeps"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/QuickSearchViewController.swift":
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.d"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.swiftdeps"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.o"
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.swiftconstvalues"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.dia"
+"/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/AppDelegate.swift":
+  const-values: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.swiftconstvalues"
+  swift-dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.swiftdeps"
+  dependencies: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.d"
+  object: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.o"
+  diagnostics: "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.dia"

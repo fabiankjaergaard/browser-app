@@ -1,0 +1,308 @@
+{
+  "" : {
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Browser-master.dia",
+    "emit-module-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Browser-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Browser-master-emit-module.dia",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Browser-master.swiftdeps"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/AISidebarViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AISidebarViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/AppDelegate.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/AppDelegate~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/BlankStartViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BlankStartViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/BookmarkBar.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BookmarkBar~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/BrowserWindowController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/BrowserWindowController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/ContentViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ContentViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/FindInPageView.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/FindInPageView~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/HistoryManager.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryManager~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/HistoryViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/HistoryViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Models/Bookmark.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Bookmark~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Models/Space.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Space~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Models/Tab.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/Tab~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/NewTabViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewTabViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/NewsWidget.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NewsWidget~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/NotesWidget.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/NotesWidget~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/QuickSearchViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuickSearchViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/QuoteWidget.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/QuoteWidget~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/RecentSitesWidget.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/RecentSitesWidget~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/SidebarFavoritesView.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarFavoritesView~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/SidebarTabView.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarTabView~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/SidebarViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/SidebarViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/TabBarView.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabBarView~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/TabManager.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/TabManager~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Utilities/ColorManager.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ColorManager~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/Utilities/WidgetSettings.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettings~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/ViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/ViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/WeatherWidget.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WeatherWidget~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/WidgetSettingsViewController.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetSettingsViewController~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/Browser/WidgetToggleCard.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/WidgetToggleCard~partial.swiftmodule"
+  },
+  "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/fabiankjaergaard/Desktop/Appar-1/Browser/build/Browser.build/Debug/Browser.build/Objects-normal/x86_64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}
