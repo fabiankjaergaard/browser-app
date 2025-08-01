@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal</title>
+    
+    <!-- xterm.js CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            overflow: hidden;
+        }
+        
+        #terminal {
+            width: 100vw;
+            height: 100vh;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        
+        .xterm {
+            background-color: transparent !important;
+        }
+        
+        .xterm-viewport {
+            background-color: transparent !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal"></div>
+    
+    <!-- xterm.js library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
+    
+    <script>
+        // Create terminal instance
+        const terminal = new Terminal({
+            theme: {
+                background: 'transparent',
+                foreground: '#ffffff',
+                cursor: '#ffffff',
+                selection: 'rgba(255, 255, 255, 0.3)',
+                black: '#000000',
+                red: '#cd3131',
+                green: '#0dbc79',
+                yellow: '#e5e510',
+                blue: '#2472c8',
+                magenta: '#bc3fbc',
+                cyan: '#11a8cd',
+                white: '#e5e5e5',
+                brightBlack: '#666666',
+                brightRed: '#f14c4c',
+                brightGreen: '#23d18b',
+                brightYellow: '#f5f543',
+                brightBlue: '#3b8eea',
+                brightMagenta: '#d670d6',
+                brightCyan: '#29b8db',
+                brightWhite: '#ffffff'
+            },
+            fontSize: 13,
+            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+            cursorBlink: true,
+            cursorStyle: 'block',
+            scrollback: 1000,
+            tabStopWidth: 4,
+            rendererType: 'dom' // Use DOM renderer for better WKWebView compatibility
+        });
+        
+        // Open terminal in the DOM
+        terminal.open(document.getElementById('terminal'));
+        
+        // Focus terminal by default
+        terminal.focus();
+        
+        // Handle terminal input
+        terminal.onData(data => {
+            // Send input data to Swift via WebKit message handler
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.terminalInput) {
+                window.webkit.messageHandlers.terminalInput.postMessage({
+                    type: 'input',
+                    data: data
+                });
+            }
+        });
+        
+        // Handle terminal resize
+        terminal.onResize(size => {
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.terminalResize) {
+                window.webkit.messageHandlers.terminalResize.postMessage({
+                    type: 'resize',
+                    cols: size.cols,
+                    rows: size.rows
+                });
+            }
+        });
+        
+        // Functions called from Swift
+        window.writeToTerminal = function(data) {
+            terminal.write(data);
+        };
+        
+        window.clearTerminal = function() {
+            terminal.clear();
+        };
+        
+        window.resizeTerminal = function(cols, rows) {
+            terminal.resize(cols, rows);
+        };
+        
+        window.focusTerminal = function() {
+            terminal.focus();
+        };
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Fit terminal to container
+            const container = document.getElementById('terminal');
+            const rect = container.getBoundingClientRect();
+            
+            // Calculate approximate character dimensions
+            const charWidth = 8; // Approximate character width
+            const charHeight = 17; // Approximate character height
+            
+            const cols = Math.floor((rect.width - 16) / charWidth); // Account for padding
+            const rows = Math.floor((rect.height - 16) / charHeight);
+            
+            if (cols > 0 && rows > 0) {
+                terminal.resize(cols, rows);
+            }
+        });
+        
+        // Initial resize
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 100);
+        
+        // Send ready signal to Swift
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.terminalReady) {
+                window.webkit.messageHandlers.terminalReady.postMessage({
+                    type: 'ready'
+                });
+            }
+        });
+        
+        // Send ready signal immediately if DOM is already loaded
+        if (document.readyState === 'loading') {
+            // Document is still loading
+        } else {
+            // DOM is ready
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.terminalReady) {
+                window.webkit.messageHandlers.terminalReady.postMessage({
+                    type: 'ready'
+                });
+            }
+        }
+    </script>
+</body>
+</html>
