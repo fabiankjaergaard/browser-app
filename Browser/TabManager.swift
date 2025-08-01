@@ -139,6 +139,12 @@ class TabManager: ObservableObject {
         
         NotificationCenter.default.post(name: .tabMoved, object: tab)
     }
+    
+    func getAllTabs() -> [Tab] {
+        // Return all tabs from all spaces plus loose tabs
+        let spaceTabs = spaces.flatMap { $0.tabs }
+        return spaceTabs + looseTabs
+    }
 }
 
 extension Notification.Name {

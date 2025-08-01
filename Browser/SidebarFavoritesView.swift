@@ -149,23 +149,184 @@ class FavoriteGroupView: NSView {
     private func createBookmarkButton(for bookmark: Bookmark) -> NSButton {
         let button = NSButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.title = bookmark.title
+        button.title = ""
         button.bezelStyle = .regularSquare
         button.isBordered = false
-        button.contentTintColor = ColorManager.primaryText
-        button.font = NSFont.systemFont(ofSize: 12, weight: .regular)
-        button.alignment = .left
         button.target = self
         button.action = #selector(bookmarkClicked(_:))
+        button.toolTip = bookmark.title + "\n" + bookmark.url.absoluteString
         
         // Store bookmark reference
         button.tag = group.bookmarks.firstIndex(where: { $0.id == bookmark.id }) ?? 0
         
+        // Create horizontal container for icon + text (Arc-style)
+        let containerView = NSView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Create favicon icon view (smaller than traditional favorites)
+        let iconView = NSView()
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.wantsLayer = true
+        iconView.layer?.cornerRadius = 4
+        
+        // Get colors for this domain
+        let (backgroundColor, textColor, iconText) = getIconStyle(for: bookmark)
+        iconView.layer?.backgroundColor = backgroundColor.cgColor
+        
+        // Create title label
+        let titleLabel = NSTextField(labelWithString: bookmark.title)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = NSFont.systemFont(ofSize: 12, weight: .regular)
+        titleLabel.textColor = ColorManager.primaryText
+        titleLabel.alignment = .left
+        titleLabel.isEditable = false
+        titleLabel.isSelectable = false
+        titleLabel.backgroundColor = .clear
+        titleLabel.isBordered = false
+        
+        // Setup favicon or fallback
+        if let existingFavicon = bookmark.favicon {
+            setupFaviconForGroupItem(iconView: iconView, favicon: existingFavicon, backgroundColor: backgroundColor, fallbackText: iconText, fallbackTextColor: textColor)
+        } else {
+            setupFallbackIconForGroupItem(iconView: iconView, backgroundColor: backgroundColor, textColor: textColor, iconText: iconText)
+            
+            // Fetch real favicon asynchronously
+            bookmark.loadFavicon { [weak iconView] in
+                guard let iconView = iconView else { return }
+                
+                // Clear existing content but keep background color
+                iconView.subviews.forEach { $0.removeFromSuperview() }
+                
+                if let favicon = bookmark.favicon {
+                    self.setupFaviconForGroupItem(iconView: iconView, favicon: favicon, backgroundColor: backgroundColor, fallbackText: iconText, fallbackTextColor: textColor)
+                } else {
+                    self.setupFallbackIconForGroupItem(iconView: iconView, backgroundColor: backgroundColor, textColor: textColor, iconText: iconText)
+                }
+            }
+        }
+        
+        // Add to container
+        containerView.addSubview(iconView)
+        containerView.addSubview(titleLabel)
+        button.addSubview(containerView)
+        
         NSLayoutConstraint.activate([
-            button.heightAnchor.constraint(equalToConstant: 20),
+            // Button constraints
+            button.heightAnchor.constraint(equalToConstant: 24),
+            
+            // Container constraints
+            containerView.topAnchor.constraint(equalTo: button.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: 16), // Indent like Arc
+            containerView.trailingAnchor.constraint(equalTo: button.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: button.bottomAnchor),
+            
+            // Icon constraints (smaller than traditional favorites)
+            iconView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            iconView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 16),
+            iconView.heightAnchor.constraint(equalToConstant: 16),
+            
+            // Title constraints
+            titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 8),
+            titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
         ])
         
         return button
+    }
+    
+    // Helper methods for group item favicons (smaller size)
+    private func setupFaviconForGroupItem(iconView: NSView, favicon: NSImage, backgroundColor: NSColor, fallbackText: String, fallbackTextColor: NSColor) {
+        let imageView = NSImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = favicon
+        imageView.imageScaling = .scaleProportionallyUpOrDown
+        
+        let inset: CGFloat = 2 // Smaller inset for group items
+        iconView.addSubview(imageView)
+        
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: iconView.topAnchor, constant: inset),
+            imageView.leadingAnchor.constraint(equalTo: iconView.leadingAnchor, constant: inset),
+            imageView.trailingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: -inset),
+            imageView.bottomAnchor.constraint(equalTo: iconView.bottomAnchor, constant: -inset)
+        ])
+        
+        // Check if we should use fallback text instead
+        if favicon.size.width < 16 || favicon.size.height < 16 {
+            imageView.removeFromSuperview()
+            setupFallbackIconForGroupItem(iconView: iconView, backgroundColor: backgroundColor, textColor: fallbackTextColor, iconText: fallbackText)
+        }
+    }
+    
+    private func setupFallbackIconForGroupItem(iconView: NSView, backgroundColor: NSColor, textColor: NSColor, iconText: String) {
+        let iconLabel = NSTextField(labelWithString: iconText)
+        iconLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconLabel.font = NSFont.systemFont(ofSize: 9, weight: .medium) // Smaller font for group items
+        iconLabel.textColor = textColor
+        iconLabel.alignment = .center
+        iconLabel.isBezeled = false
+        iconLabel.isEditable = false
+        iconLabel.isSelectable = false
+        iconLabel.backgroundColor = .clear
+        
+        iconView.addSubview(iconLabel)
+        
+        NSLayoutConstraint.activate([
+            iconLabel.centerXAnchor.constraint(equalTo: iconView.centerXAnchor),
+            iconLabel.centerYAnchor.constraint(equalTo: iconView.centerYAnchor)
+        ])
+    }
+    
+    // Use the same icon styling as traditional favorites
+    private func getIconStyle(for bookmark: Bookmark) -> (NSColor, NSColor, String) {
+        let domain = bookmark.url.host?.lowercased() ?? ""
+        
+        // Return (backgroundColor, textColor, iconText) - EXACT brand colors!
+        if domain.contains("youtube.com") {
+            return (NSColor(red: 0.898, green: 0.0, blue: 0.0, alpha: 1.0), .white, "▶") // #E50000
+        } else if domain.contains("netflix.com") {
+            return (NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0), .white, "N") // #000000 (svart bakgrund)
+        } else if domain.contains("linkedin.com") {
+            return (NSColor(red: 0.0, green: 0.475, blue: 0.714, alpha: 1.0), .white, "in") // #0077B6
+        } else if domain.contains("facebook.com") {
+            return (NSColor(red: 0.145, green: 0.416, blue: 0.773, alpha: 1.0), .white, "f") // #1877F2 (nyare blå)
+        } else if domain.contains("github.com") {
+            return (NSColor(red: 0.067, green: 0.067, blue: 0.067, alpha: 1.0), .white, "⚡") // #111111
+        } else if domain.contains("chatgpt.com") || domain.contains("openai.com") {
+            return (NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0), .black, "GPT") // #FFFFFF (vit bakgrund)
+        } else if domain.contains("gmail") || domain.contains("mail.google") {
+            return (NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1.0), .white, "M") // #808080 (grå bakgrund)
+        } else if domain.contains("google.com") {
+            return (NSColor(red: 0.259, green: 0.522, blue: 0.957, alpha: 1.0), .white, "G") // #4285F4
+        } else if domain.contains("apple.com") {
+            return (NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0), .white, "🍎") // #000000
+        } else if domain.contains("twitter.com") || domain.contains("x.com") {
+            return (NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0), .white, "𝕏") // X är nu svart
+        } else if domain.contains("instagram.com") {
+            return (NSColor(red: 0.886, green: 0.243, blue: 0.643, alpha: 1.0), .white, "◉") // #E23EA4 (rosa från gradient)
+        } else if domain.contains("discord.com") {
+            return (NSColor(red: 0.345, green: 0.396, blue: 0.941, alpha: 1.0), .white, "D") // #5865F0
+        } else if domain.contains("spotify.com") {
+            return (NSColor(red: 0.114, green: 0.725, blue: 0.329, alpha: 1.0), .white, "♫") // #1DB954
+        } else if domain.contains("music.apple.com") {
+            return (NSColor(red: 0.984, green: 0.259, blue: 0.573, alpha: 1.0), .white, "♪") // #FB4292
+        } else if domain.contains("figma.com") {
+            return (NSColor(red: 0.945, green: 0.329, blue: 0.196, alpha: 1.0), .white, "F") // #F14332
+        } else if domain.contains("behance.net") {
+            return (NSColor(red: 0.0, green: 0.388, blue: 1.0, alpha: 1.0), .white, "Be") // #0063FF
+        } else if domain.contains("dribbble.com") {
+            return (NSColor(red: 0.918, green: 0.267, blue: 0.537, alpha: 1.0), .white, "D") // #EA4489
+        } else if domain.contains("coursera.org") {
+            return (NSColor(red: 0.071, green: 0.282, blue: 0.804, alpha: 1.0), .white, "C") // #1248CD
+        } else if domain.contains("developer.apple.com") {
+            return (NSColor(red: 0.0, green: 0.478, blue: 1.0, alpha: 1.0), .white, "🔨") // #007AFF
+        } else {
+            // Use first letter of title or domain with a nice default color
+            let firstLetter = String(bookmark.title.prefix(1)).uppercased()
+            let fallbackLetter = firstLetter.isEmpty ? String(domain.prefix(1)).uppercased() : firstLetter
+            return (NSColor(red: 0.478, green: 0.573, blue: 0.729, alpha: 1.0), .white, fallbackLetter) // #7A92BA
+        }
     }
     
     @objc private func bookmarkClicked(_ sender: NSButton) {
@@ -239,7 +400,7 @@ class SidebarFavoritesView: NSView {
         setupTraditionalFavorites()
         
         // Register for drag and drop
-        registerForDraggedTypes([.string])
+        registerForDraggedTypes([NSPasteboard.PasteboardType("BrowserTab"), .string, .URL])
         
         setupNotifications()
     }
@@ -303,11 +464,13 @@ class SidebarFavoritesView: NSView {
         // Get bookmarks from BookmarkManager
         guard let bookmarksBarFolder = BookmarkManager.shared.getBookmarksBarFolder() else { return }
         
-        // Group bookmarks into rows of 4
+        // Group bookmarks into rows of 4 (ENFORCED LIMIT)
         let bookmarks = bookmarksBarFolder.bookmarks
         let iconsPerRow = 4
+        let maxFavorites = 16 // Max 4 rows of 4 favorites each
+        let limitedBookmarks = Array(bookmarks.prefix(maxFavorites))
         
-        for rowIndex in stride(from: 0, to: bookmarks.count, by: iconsPerRow) {
+        for rowIndex in stride(from: 0, to: limitedBookmarks.count, by: iconsPerRow) {
             // Create horizontal stack view for this row
             let rowStackView = NSStackView()
             rowStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -317,9 +480,9 @@ class SidebarFavoritesView: NSView {
             rowStackView.distribution = .fill
             
             // Add up to 4 buttons to this row
-            let endIndex = min(rowIndex + iconsPerRow, bookmarks.count)
+            let endIndex = min(rowIndex + iconsPerRow, limitedBookmarks.count)
             for buttonIndex in rowIndex..<endIndex {
-                let bookmark = bookmarks[buttonIndex]
+                let bookmark = limitedBookmarks[buttonIndex]
                 let button = createTraditionalFavoriteButton(for: bookmark, at: buttonIndex)
                 favoriteButtons.append(button)
                 favoriteBookmarks.append(bookmark)
@@ -335,9 +498,14 @@ class SidebarFavoritesView: NSView {
             ])
         }
         
+        // Show warning if there are more than max favorites
+        if bookmarks.count > maxFavorites {
+            print("⚠️ Too many favorites (\(bookmarks.count)). Only showing first \(maxFavorites).")
+        }
+        
         // Hide header if no favorites
-        favoritesHeaderLabel.isHidden = bookmarks.isEmpty
-        favoritesStackView.isHidden = bookmarks.isEmpty
+        favoritesHeaderLabel.isHidden = limitedBookmarks.isEmpty
+        favoritesStackView.isHidden = limitedBookmarks.isEmpty
     }
     
     private func createTraditionalFavoriteButton(for bookmark: Bookmark, at index: Int) -> NSButton {
@@ -358,6 +526,8 @@ class SidebarFavoritesView: NSView {
         iconView.translatesAutoresizingMaskIntoConstraints = false
         iconView.wantsLayer = true
         iconView.layer?.cornerRadius = 8  // More rounded like iOS icons
+        iconView.layer?.borderWidth = 0  // Start with no border
+        iconView.layer?.borderColor = ColorManager.primaryText.withAlphaComponent(0.3).cgColor
         
         // Get colors for this domain (always keep the colored background!)
         let (backgroundColor, textColor, iconText) = getIconStyle(for: bookmark)
@@ -371,8 +541,8 @@ class SidebarFavoritesView: NSView {
             setupFallbackIconView(iconView: iconView, backgroundColor: backgroundColor, textColor: textColor, iconText: iconText)
             
             // Fetch real favicon asynchronously
-            bookmark.loadFavicon { [weak self, weak iconView, weak button] in
-                guard let self = self, let iconView = iconView, let button = button else { return }
+            bookmark.loadFavicon { [weak self, weak iconView] in
+                guard let self = self, let iconView = iconView else { return }
                 
                 // Clear existing content but keep background color
                 iconView.subviews.forEach { $0.removeFromSuperview() }
@@ -387,6 +557,19 @@ class SidebarFavoritesView: NSView {
         }
         
         button.addSubview(iconView)
+        
+        // Add hover tracking for border effect
+        let trackingArea = NSTrackingArea(
+            rect: NSRect(x: 0, y: 0, width: 44, height: 44),
+            options: [.mouseEnteredAndExited, .activeInKeyWindow],
+            owner: self,
+            userInfo: ["favoriteButton": button, "iconView": iconView]
+        )
+        button.addTrackingArea(trackingArea)
+        
+        // Enable drag source for favorite removal
+        let dragGestureRecognizer = NSPanGestureRecognizer(target: self, action: #selector(handleFavoriteDrag(_:)))
+        button.addGestureRecognizer(dragGestureRecognizer)
         
         // Constraints - make icons larger with less spacing
         NSLayoutConstraint.activate([
@@ -526,6 +709,39 @@ class SidebarFavoritesView: NSView {
         delegate?.sidebarFavoritesView(self, didClickFavorite: bookmark)
     }
     
+    // MARK: - Hover Effects for Favorite Icons
+    override func mouseEntered(with event: NSEvent) {
+        guard let trackingArea = event.trackingArea,
+              let iconView = trackingArea.userInfo?["iconView"] as? NSView else { return }
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            
+            // Add subtle border on hover
+            iconView.layer?.borderWidth = 2
+            
+            // Slightly scale up the icon
+            iconView.layer?.transform = CATransform3DMakeScale(1.05, 1.05, 1.0)
+        }
+    }
+    
+    override func mouseExited(with event: NSEvent) {
+        guard let trackingArea = event.trackingArea,
+              let iconView = trackingArea.userInfo?["iconView"] as? NSView else { return }
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            
+            // Remove border
+            iconView.layer?.borderWidth = 0
+            
+            // Reset scale
+            iconView.layer?.transform = CATransform3DIdentity
+        }
+    }
+    
     private func loadFavoriteGroups() {
         // Clear existing group views (but keep favorites section)
         groupViews.forEach { $0.removeFromSuperview() }
@@ -607,5 +823,245 @@ class SidebarFavoritesView: NSView {
     
     override var intrinsicContentSize: NSSize {
         return NSSize(width: NSView.noIntrinsicMetric, height: stackView.fittingSize.height + 12)
+    }
+    
+    // MARK: - Drag and Drop Support
+    
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        // Check if we're dragging a tab or URL
+        let pasteboard = sender.draggingPasteboard
+        
+        if pasteboard.types?.contains(NSPasteboard.PasteboardType("BrowserTab")) == true ||
+           pasteboard.types?.contains(.URL) == true ||
+           pasteboard.types?.contains(.string) == true {
+            
+            // Check if we have space for more favorites (max 16)
+            guard let bookmarksBarFolder = BookmarkManager.shared.getBookmarksBarFolder() else {
+                return []
+            }
+            
+            if bookmarksBarFolder.bookmarks.count >= 16 {
+                print("⚠️ Maximum number of favorites reached (16)")
+                return []
+            }
+            
+            // Highlight the favorites area
+            addDropHighlight()
+            return .copy
+        }
+        
+        return []
+    }
+    
+    override func draggingExited(_ sender: NSDraggingInfo?) {
+        removeDropHighlight()
+    }
+    
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+        // Check if we have space for more favorites
+        guard let bookmarksBarFolder = BookmarkManager.shared.getBookmarksBarFolder() else {
+            return []
+        }
+        
+        if bookmarksBarFolder.bookmarks.count >= 16 {
+            return []
+        }
+        
+        return .copy
+    }
+    
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        let pasteboard = sender.draggingPasteboard
+        removeDropHighlight()
+        
+        // Handle tab drag
+        if let jsonString = pasteboard.string(forType: NSPasteboard.PasteboardType("BrowserTab")) {
+            print("📦 Received BrowserTab data: \(jsonString)")
+            return handleTabDrop(jsonData: jsonString)
+        }
+        
+        // Handle URL drag
+        if let url = pasteboard.readObjects(forClasses: [NSURL.self], options: nil)?.first as? URL {
+            return handleURLDrop(url: url)
+        }
+        
+        // Handle string data drag (could be JSON from tab or plain URL)
+        if let stringData = pasteboard.string(forType: .string) {
+            // Try to parse as JSON first (tab data)
+            if stringData.contains("tab_id") && stringData.contains("{") {
+                print("📦 Received string tab data: \(stringData)")
+                return handleTabDrop(jsonData: stringData)
+            }
+            // Otherwise treat as URL
+            else if let url = URL(string: stringData) {
+                return handleURLDrop(url: url)
+            }
+        }
+        
+        return false
+    }
+    
+    private func handleTabDrop(jsonData: String) -> Bool {
+        // Parse JSON data
+        guard let data = jsonData.data(using: .utf8),
+              let tabData = try? JSONSerialization.jsonObject(with: data) as? [String: String],
+              let tabIDString = tabData["tab_id"],
+              let tabID = UUID(uuidString: tabIDString),
+              let tabTitle = tabData["tab_title"],
+              let tabURLString = tabData["tab_url"],
+              let tabURL = URL(string: tabURLString) else {
+            print("❌ Failed to parse tab data: \(jsonData)")
+            return false
+        }
+        
+        print("📋 Parsed tab data - ID: \(tabID), Title: \(tabTitle), URL: \(tabURL)")
+        
+        // Find the tab by ID to get favicon
+        let tab = TabManager.shared.getAllTabs().first(where: { $0.id == tabID })
+        
+        // Create bookmark from parsed data
+        let bookmark = Bookmark(title: tabTitle, url: tabURL)
+        bookmark.favicon = tab?.favicon  // Use tab favicon if available
+        
+        // Add to favorites
+        BookmarkManager.shared.addBookmark(bookmark)
+        
+        // Refresh the favorites display
+        DispatchQueue.main.async {
+            self.loadTraditionalFavorites()
+        }
+        
+        print("✅ Added tab '\(tabTitle)' to favorites")
+        return true
+    }
+    
+    private func handleURLDrop(url: URL) -> Bool {
+        // Create bookmark from URL
+        let title = url.host ?? url.absoluteString
+        let bookmark = Bookmark(title: title, url: url)
+        
+        // Load favicon
+        bookmark.loadFavicon()
+        
+        // Add to favorites
+        BookmarkManager.shared.addBookmark(bookmark)
+        
+        // Refresh the favorites display
+        DispatchQueue.main.async {
+            self.loadTraditionalFavorites()
+        }
+        
+        print("✅ Added URL '\(url.absoluteString)' to favorites")
+        return true
+    }
+    
+    private func addDropHighlight() {
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            favoritesStackView.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.1).cgColor
+            favoritesStackView.layer?.borderWidth = 2
+            favoritesStackView.layer?.borderColor = NSColor.controlAccentColor.withAlphaComponent(0.5).cgColor
+            favoritesStackView.layer?.cornerRadius = 8
+        }
+    }
+    
+    private func removeDropHighlight() {
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            favoritesStackView.layer?.backgroundColor = NSColor.clear.cgColor
+            favoritesStackView.layer?.borderWidth = 0
+        }
+    }
+    
+    // MARK: - Favorite Drag-to-Remove
+    
+    @objc private func handleFavoriteDrag(_ recognizer: NSPanGestureRecognizer) {
+        guard let button = recognizer.view as? NSButton,
+              let index = favoriteButtons.firstIndex(of: button),
+              index < favoriteBookmarks.count else { return }
+        
+        let bookmark = favoriteBookmarks[index]
+        
+        switch recognizer.state {
+        case .began:
+            startFavoriteDrag(button: button, bookmark: bookmark)
+        case .changed:
+            updateFavoriteDrag(recognizer: recognizer, button: button)
+        case .ended:
+            endFavoriteDrag(recognizer: recognizer, button: button, bookmark: bookmark)
+        case .cancelled, .failed:
+            cancelFavoriteDrag(button: button)
+        default:
+            break
+        }
+    }
+    
+    private func startFavoriteDrag(button: NSButton, bookmark: Bookmark) {
+        // Scale down the button to indicate dragging
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            button.layer?.transform = CATransform3DMakeScale(0.8, 0.8, 1.0)
+            button.alphaValue = 0.7
+        }
+        
+        print("🎯 Started dragging favorite: \(bookmark.title)")
+    }
+    
+    private func updateFavoriteDrag(recognizer: NSPanGestureRecognizer, button: NSButton) {
+        let translation = recognizer.translation(in: self)
+        
+        // Move the button with the drag
+        button.layer?.transform = CATransform3DConcat(
+            CATransform3DMakeScale(0.8, 0.8, 1.0),
+            CATransform3DMakeTranslation(translation.x, -translation.y, 0)
+        )
+        
+        // Check if we're dragging outside the favorites area (for removal)
+        let buttonFrame = button.frame
+        let buttonCenter = NSPoint(x: buttonFrame.midX + translation.x, y: buttonFrame.midY - translation.y)
+        let favoritesFrame = favoritesStackView.frame
+        
+        if !favoritesFrame.contains(buttonCenter) {
+            // Show removal indicator
+            button.alphaValue = 0.3
+        } else {
+            button.alphaValue = 0.7
+        }
+    }
+    
+    private func endFavoriteDrag(recognizer: NSPanGestureRecognizer, button: NSButton, bookmark: Bookmark) {
+        let translation = recognizer.translation(in: self)
+        
+        // Check if we dragged outside the favorites area
+        let buttonFrame = button.frame
+        let buttonCenter = NSPoint(x: buttonFrame.midX + translation.x, y: buttonFrame.midY - translation.y)
+        let favoritesFrame = favoritesStackView.frame
+        
+        if !favoritesFrame.contains(buttonCenter) {
+            // Remove the favorite
+            removeFavorite(bookmark)
+            print("🗑️ Removed favorite: \(bookmark.title)")
+        } else {
+            // Reset button position
+            resetFavoriteButton(button)
+        }
+    }
+    
+    private func cancelFavoriteDrag(button: NSButton) {
+        resetFavoriteButton(button)
+    }
+    
+    private func resetFavoriteButton(_ button: NSButton) {
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            button.layer?.transform = CATransform3DIdentity
+            button.alphaValue = 1.0
+        }
+    }
+    
+    private func removeFavorite(_ bookmark: Bookmark) {
+        BookmarkManager.shared.removeBookmark(bookmark)
+        print("✅ Favorite removed from BookmarkManager")
     }
 }

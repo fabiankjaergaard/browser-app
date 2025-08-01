@@ -302,7 +302,8 @@ class SidebarTabView: NSView, NSDraggingSource {
         
         // Create pasteboard item
         let pasteboardItem = NSPasteboardItem()
-        pasteboardItem.setString(jsonString, forType: .string)
+        pasteboardItem.setString(jsonString, forType: NSPasteboard.PasteboardType("BrowserTab"))
+        pasteboardItem.setString(jsonString, forType: .string)  // Fallback for compatibility
         
         // Create drag image (small version of the tab)
         let dragImage = createDragImage()
