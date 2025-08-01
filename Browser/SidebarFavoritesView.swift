@@ -364,6 +364,16 @@ class SidebarFavoritesView: NSView {
     // Track which favorite is currently active/selected
     private var activeFavoriteButton: NSButton?
     
+    // Drag-to-remove state
+    private var draggedOutsideStartTime: Date?
+    private var isDragActive = false
+    private var dragStartPoint: NSPoint = NSPoint.zero
+    
+    // Drag-to-swap state
+    private var potentialSwapTarget: NSButton?
+    private var isSwapAnimationActive = false
+    private var currentSwapTarget: NSButton?
+    
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         setupView()
@@ -984,19 +994,46 @@ class SidebarFavoritesView: NSView {
         
         switch recognizer.state {
         case .began:
-            startFavoriteDrag(button: button, bookmark: bookmark)
+            // Just record the start point, don't start drag yet
+            dragStartPoint = recognizer.location(in: self)
+            isDragActive = false
+            
         case .changed:
-            updateFavoriteDrag(recognizer: recognizer, button: button)
+            let currentPoint = recognizer.location(in: self)
+            let distance = sqrt(pow(currentPoint.x - dragStartPoint.x, 2) + pow(currentPoint.y - dragStartPoint.y, 2))
+            
+            // Only start drag if we've moved more than 5 pixels
+            if !isDragActive && distance > 5 {
+                isDragActive = true
+                startFavoriteDrag(button: button, bookmark: bookmark)
+                print("🎯 Drag activated after \(distance) pixels")
+            }
+            
+            if isDragActive {
+                updateFavoriteDrag(recognizer: recognizer, button: button)
+            }
+            
         case .ended:
-            endFavoriteDrag(recognizer: recognizer, button: button, bookmark: bookmark)
+            if isDragActive {
+                endFavoriteDrag(recognizer: recognizer, button: button, bookmark: bookmark)
+            }
+            isDragActive = false
+            
         case .cancelled, .failed:
-            cancelFavoriteDrag(button: button)
+            if isDragActive {
+                cancelFavoriteDrag(button: button)   
+            }
+            isDragActive = false
+            
         default:
             break
         }
     }
     
     private func startFavoriteDrag(button: NSButton, bookmark: Bookmark) {
+        // Reset drag state
+        draggedOutsideStartTime = nil
+        
         // Scale down the button to indicate dragging
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.2
@@ -1013,41 +1050,93 @@ class SidebarFavoritesView: NSView {
         // Move the button with the drag
         button.layer?.transform = CATransform3DConcat(
             CATransform3DMakeScale(0.8, 0.8, 1.0),
-            CATransform3DMakeTranslation(translation.x, -translation.y, 0)
+            CATransform3DMakeTranslation(translation.x, translation.y, 0)
         )
         
         // Check if we're dragging outside the favorites area (for removal)
         let buttonFrame = button.frame
-        let buttonCenter = NSPoint(x: buttonFrame.midX + translation.x, y: buttonFrame.midY - translation.y)
-        let favoritesFrame = favoritesStackView.frame
+        let buttonCenter = NSPoint(x: buttonFrame.midX + translation.x, y: buttonFrame.midY + translation.y)
+        let favoritesFrame = self.bounds  // Use the entire SidebarFavoritesView bounds
         
-        if !favoritesFrame.contains(buttonCenter) {
-            // Show removal indicator
-            button.alphaValue = 0.3
+        let isOutsideFavorites = !favoritesFrame.contains(buttonCenter)
+        
+        if isOutsideFavorites {
+            // Clear any swap target when outside
+            clearSwapTarget()
+            
+            // Start timer if not already started
+            if draggedOutsideStartTime == nil {
+                draggedOutsideStartTime = Date()
+                print("⏱️ Started drag-outside timer for: \(button.tag)")
+            }
+            
+            // Check if we've been outside for 1 second
+            let timeOutside = Date().timeIntervalSince(draggedOutsideStartTime!)
+            if timeOutside >= 1.0 {
+                button.alphaValue = 0.3  // Ready to delete
+                print("💀 Ready to delete - held for \(timeOutside) seconds")
+            } else {
+                button.alphaValue = 0.5  // Getting ready to delete
+            }
         } else {
+            // Reset timer when back inside
+            if draggedOutsideStartTime != nil {
+                print("↩️ Back inside favorites area - resetting timer")
+            }
+            draggedOutsideStartTime = nil
             button.alphaValue = 0.7
+            
+            // Check for potential swap target
+            findSwapTarget(draggedButton: button, at: buttonCenter)
         }
     }
     
     private func endFavoriteDrag(recognizer: NSPanGestureRecognizer, button: NSButton, bookmark: Bookmark) {
         let translation = recognizer.translation(in: self)
         
-        // Check if we dragged outside the favorites area
+        // Check if we dragged outside and the remove indicator is showing
         let buttonFrame = button.frame
-        let buttonCenter = NSPoint(x: buttonFrame.midX + translation.x, y: buttonFrame.midY - translation.y)
-        let favoritesFrame = favoritesStackView.frame
+        let buttonCenter = NSPoint(x: buttonFrame.midX + translation.x, y: buttonFrame.midY + translation.y)
+        let favoritesFrame = self.bounds  // Use the entire SidebarFavoritesView bounds
+        let isOutsideFavorites = !favoritesFrame.contains(buttonCenter)
         
-        if !favoritesFrame.contains(buttonCenter) {
-            // Remove the favorite
-            removeFavorite(bookmark)
-            print("🗑️ Removed favorite: \(bookmark.title)")
+        print("🏁 End drag for: \(bookmark.title)")
+        print("   buttonCenter: \(buttonCenter)")
+        print("   favoritesFrame: \(favoritesFrame)")
+        print("   isOutsideFavorites: \(isOutsideFavorites)")
+        print("   draggedOutsideStartTime: \(draggedOutsideStartTime != nil ? "set" : "nil")")
+        print("   potentialSwapTarget: \(potentialSwapTarget != nil ? "set" : "nil")")
+        
+        // Check what operation to perform
+        if isOutsideFavorites && draggedOutsideStartTime != nil {
+            let timeOutside = Date().timeIntervalSince(draggedOutsideStartTime!)
+            if timeOutside >= 1.0 {
+                // Remove the favorite
+                removeFavorite(bookmark)
+                print("🗑️ Removed favorite: \(bookmark.title) - held outside for \(timeOutside) seconds")
+            } else {
+                // Reset button position - not held long enough
+                resetFavoriteButton(button)
+                print("↩️ Reset favorite: \(bookmark.title) - only held outside for \(timeOutside) seconds")
+            }
+        } else if let swapTarget = potentialSwapTarget {
+            // Perform swap operation
+            performSwap(draggedButton: button, swapTarget: swapTarget)
+            print("🔄 Swapping favorites")
         } else {
-            // Reset button position
+            // Reset button position - normal drag within favorites area
             resetFavoriteButton(button)
+            print("↩️ Reset favorite: \(bookmark.title) - normal drag within area")
         }
+        
+        // Clean up drag state
+        draggedOutsideStartTime = nil
+        clearSwapTarget()
     }
     
     private func cancelFavoriteDrag(button: NSButton) {
+        draggedOutsideStartTime = nil
+        clearSwapTarget()
         resetFavoriteButton(button)
     }
     
@@ -1062,6 +1151,145 @@ class SidebarFavoritesView: NSView {
     
     private func removeFavorite(_ bookmark: Bookmark) {
         BookmarkManager.shared.removeBookmark(bookmark)
+        
+        // Refresh the favorites display
+        DispatchQueue.main.async {
+            self.loadTraditionalFavorites()
+        }
+        
         print("✅ Favorite removed from BookmarkManager")
+    }
+    
+    // MARK: - Swap functionality
+    
+    private func findSwapTarget(draggedButton: NSButton, at point: NSPoint) {
+        var closestButton: NSButton?
+        var closestDistance: CGFloat = CGFloat.greatestFiniteMagnitude
+        
+        // Check all favorite buttons except the dragged one
+        for button in favoriteButtons {
+            if button == draggedButton { continue }
+            
+            let buttonCenter = NSPoint(x: button.frame.midX, y: button.frame.midY)
+            let distance = sqrt(pow(point.x - buttonCenter.x, 2) + pow(point.y - buttonCenter.y, 2))
+            
+            // Consider buttons within 30 pixels as potential swap targets
+            if distance < 30 && distance < closestDistance {
+                closestDistance = distance
+                closestButton = button
+            }
+        }
+        
+        // Update swap target if changed
+        if closestButton != potentialSwapTarget {
+            clearSwapTarget()
+            
+            if let newTarget = closestButton {
+                potentialSwapTarget = newTarget
+                animateSwapPreview(draggedButton: draggedButton, swapTarget: newTarget)
+                print("🎯 Found swap target: button at distance \(closestDistance)")
+            }
+        }
+    }
+    
+    private func highlightSwapTarget(_ button: NSButton) {
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            button.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.3).cgColor
+            button.layer?.borderWidth = 2
+            button.layer?.borderColor = NSColor.controlAccentColor.cgColor
+        }
+    }
+    
+    private func clearSwapTarget() {
+        // Reset any current swap target animation
+        if let currentTarget = currentSwapTarget {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.5  // Längre duration för smidigare återställning
+                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.25, 0.1, 0.25, 1.0)  // Samma mjuka curve
+                currentTarget.layer?.transform = CATransform3DIdentity
+                currentTarget.layer?.backgroundColor = NSColor.clear.cgColor
+                currentTarget.layer?.borderWidth = 0
+            }
+        }
+        
+        potentialSwapTarget = nil
+        currentSwapTarget = nil
+        isSwapAnimationActive = false
+    }
+    
+    private func animateSwapPreview(draggedButton: NSButton, swapTarget: NSButton) {
+        guard !isSwapAnimationActive else { return }
+        
+        isSwapAnimationActive = true
+        currentSwapTarget = swapTarget
+        
+        // Get the original positions
+        let draggedOriginalFrame = draggedButton.frame
+        let swapOriginalFrame = swapTarget.frame
+        
+        // Calculate offset to move swap target to where dragged button originally was
+        let swapTargetOffset = NSPoint(
+            x: draggedOriginalFrame.midX - swapOriginalFrame.midX,
+            y: draggedOriginalFrame.midY - swapOriginalFrame.midY
+        )
+        
+        print("🎬 Animating swap preview - moving target to dragged position")
+        
+        // Animate the swap target to the dragged button's original position
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.6  // Längre duration för smidigare animation
+            context.timingFunction = CAMediaTimingFunction(controlPoints: 0.25, 0.1, 0.25, 1.0)  // Mjuk easing curve
+            
+            // Move swap target to dragged button's original position
+            swapTarget.layer?.transform = CATransform3DMakeTranslation(
+                swapTargetOffset.x, 
+                swapTargetOffset.y, 
+                0
+            )
+            
+            // Add subtle highlight to show it's the swap target
+            swapTarget.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.15).cgColor
+            swapTarget.layer?.borderWidth = 1
+            swapTarget.layer?.borderColor = NSColor.controlAccentColor.withAlphaComponent(0.6).cgColor
+        }
+    }
+    
+    private func performSwap(draggedButton: NSButton, swapTarget: NSButton) {
+        guard let draggedIndex = favoriteButtons.firstIndex(of: draggedButton),
+              let swapIndex = favoriteButtons.firstIndex(of: swapTarget),
+              draggedIndex < favoriteBookmarks.count,
+              swapIndex < favoriteBookmarks.count else {
+            print("❌ Invalid button indices for swap")
+            resetFavoriteButton(draggedButton)
+            return
+        }
+        
+        let draggedBookmark = favoriteBookmarks[draggedIndex]
+        let swapBookmark = favoriteBookmarks[swapIndex]
+        
+        print("✅ Finalizing swap between favorites at indices \(draggedIndex) and \(swapIndex)")
+        
+        // Perform the actual swap in BookmarkManager
+        BookmarkManager.shared.swapBookmarks(draggedBookmark, swapBookmark)
+        
+        // Smooth animation to finalize positions
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.4  // Längre för smidigare slutanimation
+            context.timingFunction = CAMediaTimingFunction(controlPoints: 0.25, 0.1, 0.25, 1.0)  // Samma mjuka curve
+            
+            // Reset dragged button to normal state
+            draggedButton.layer?.transform = CATransform3DIdentity
+            draggedButton.alphaValue = 1.0
+            
+            // Reset swap target to normal state  
+            swapTarget.layer?.transform = CATransform3DIdentity
+            swapTarget.layer?.backgroundColor = NSColor.clear.cgColor
+            swapTarget.layer?.borderWidth = 0
+            
+        } completionHandler: {
+            // Refresh favorites to show new order
+            self.loadTraditionalFavorites()
+        }
     }
 }

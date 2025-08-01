@@ -300,6 +300,40 @@ class BookmarkManager: ObservableObject {
         // Remove from bookmarks bar (simplified)
         removeBookmark(bookmark)
     }
+    
+    func moveBookmark(_ bookmark: Bookmark, to newIndex: Int, in folder: BookmarkFolder? = nil) {
+        let targetFolder = folder ?? getBookmarksBarFolder()
+        guard let folder = targetFolder else { return }
+        
+        // Find current index
+        guard let currentIndex = folder.bookmarks.firstIndex(where: { $0.id == bookmark.id }) else { return }
+        
+        // Remove from current position
+        folder.bookmarks.remove(at: currentIndex)
+        
+        // Insert at new position (clamp to valid range)
+        let clampedIndex = min(max(newIndex, 0), folder.bookmarks.count)
+        folder.bookmarks.insert(bookmark, at: clampedIndex)
+        
+        saveBookmarks()
+        NotificationCenter.default.post(name: .bookmarksUpdated, object: nil)
+        print("📝 Moved bookmark '\(bookmark.title)' from index \(currentIndex) to \(clampedIndex)")
+    }
+    
+    func swapBookmarks(_ bookmark1: Bookmark, _ bookmark2: Bookmark, in folder: BookmarkFolder? = nil) {
+        let targetFolder = folder ?? getBookmarksBarFolder()
+        guard let folder = targetFolder else { return }
+        
+        guard let index1 = folder.bookmarks.firstIndex(where: { $0.id == bookmark1.id }),
+              let index2 = folder.bookmarks.firstIndex(where: { $0.id == bookmark2.id }) else { return }
+        
+        // Swap the bookmarks
+        folder.bookmarks.swapAt(index1, index2)
+        
+        saveBookmarks()
+        NotificationCenter.default.post(name: .bookmarksUpdated, object: nil)
+        print("🔄 Swapped bookmarks: '\(bookmark1.title)' <-> '\(bookmark2.title)'")
+    }
 }
 
 extension Notification.Name {
