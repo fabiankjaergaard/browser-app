@@ -26,21 +26,31 @@ class TerminalContainerViewController: NSViewController {
     
     private func setupView() {
         view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.95).cgColor
+        view.layer?.backgroundColor = NSColor.clear.cgColor
         
-        // Add subtle blur effect
+        // Modern frosted glass background
         let visualEffectView = NSVisualEffectView()
-        visualEffectView.material = .sidebar
+        visualEffectView.material = .popover
         visualEffectView.blendingMode = .behindWindow
         visualEffectView.state = .active
+        visualEffectView.wantsLayer = true
+        visualEffectView.layer?.cornerRadius = 16
+        visualEffectView.layer?.borderWidth = 1
+        visualEffectView.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.2).cgColor
         visualEffectView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(visualEffectView)
         
+        // Add subtle shadow
+        visualEffectView.shadow = NSShadow()
+        visualEffectView.shadow?.shadowOffset = NSSize(width: 0, height: 4)
+        visualEffectView.shadow?.shadowBlurRadius = 12
+        visualEffectView.shadow?.shadowColor = NSColor.black.withAlphaComponent(0.15)
+        
         NSLayoutConstraint.activate([
-            visualEffectView.topAnchor.constraint(equalTo: view.topAnchor),
-            visualEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            visualEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            visualEffectView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            visualEffectView.topAnchor.constraint(equalTo: view.topAnchor, constant: 8),
+            visualEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            visualEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            visualEffectView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8)
         ])
     }
     
@@ -48,61 +58,91 @@ class TerminalContainerViewController: NSViewController {
         headerView = NSView()
         headerView.translatesAutoresizingMaskIntoConstraints = false
         headerView.wantsLayer = true
+        headerView.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.1).cgColor
+        headerView.layer?.cornerRadius = 12
         view.addSubview(headerView)
         
-        // Terminal title
-        let titleLabel = NSTextField(labelWithString: "Terminal Container")
+        // Terminal icon and title
+        let iconLabel = NSTextField(labelWithString: "💻")
+        iconLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconLabel.font = NSFont.systemFont(ofSize: 18)
+        iconLabel.alignment = .center
+        headerView.addSubview(iconLabel)
+        
+        let titleLabel = NSTextField(labelWithString: "Terminal")
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = NSFont.systemFont(ofSize: 16, weight: .semibold)
-        titleLabel.textColor = NSColor.white
+        titleLabel.textColor = NSColor.labelColor
         headerView.addSubview(titleLabel)
         
-        // Close button
+        // Close button with modern design
         closeButton = NSButton()
         closeButton.translatesAutoresizingMaskIntoConstraints = false
-        closeButton.image = NSImage(systemSymbolName: "xmark", accessibilityDescription: "Close")
+        closeButton.image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: "Close")
         closeButton.bezelStyle = .regularSquare
         closeButton.isBordered = false
-        closeButton.contentTintColor = NSColor.secondaryLabelColor
+        closeButton.contentTintColor = NSColor.tertiaryLabelColor
         closeButton.target = self
         closeButton.action = #selector(closeTerminal)
+        
+        // Add hover effect
+        closeButton.wantsLayer = true
+        closeButton.layer?.cornerRadius = 10
         headerView.addSubview(closeButton)
         
-        // Status indicator
-        let statusIndicator = NSView()
-        statusIndicator.translatesAutoresizingMaskIntoConstraints = false
-        statusIndicator.wantsLayer = true
-        statusIndicator.layer?.backgroundColor = NSColor.systemOrange.cgColor
-        statusIndicator.layer?.cornerRadius = 4
-        headerView.addSubview(statusIndicator)
+        // Status indicator with modern design
+        let statusContainer = NSView()
+        statusContainer.translatesAutoresizingMaskIntoConstraints = false
+        statusContainer.wantsLayer = true
+        statusContainer.layer?.backgroundColor = NSColor.systemOrange.withAlphaComponent(0.15).cgColor
+        statusContainer.layer?.cornerRadius = 8
+        statusContainer.layer?.borderWidth = 1
+        statusContainer.layer?.borderColor = NSColor.systemOrange.withAlphaComponent(0.3).cgColor
+        headerView.addSubview(statusContainer)
         
-        let statusLabel = NSTextField(labelWithString: "Choose Terminal App")
+        let statusDot = NSView()
+        statusDot.translatesAutoresizingMaskIntoConstraints = false
+        statusDot.wantsLayer = true
+        statusDot.layer?.backgroundColor = NSColor.systemOrange.cgColor
+        statusDot.layer?.cornerRadius = 3
+        statusContainer.addSubview(statusDot)
+        
+        let statusLabel = NSTextField(labelWithString: "Ready")
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.font = NSFont.systemFont(ofSize: 10, weight: .medium)
-        statusLabel.textColor = NSColor.secondaryLabelColor
-        headerView.addSubview(statusLabel)
+        statusLabel.font = NSFont.systemFont(ofSize: 11, weight: .medium)
+        statusLabel.textColor = NSColor.systemOrange
+        statusContainer.addSubview(statusLabel)
         
         NSLayoutConstraint.activate([
-            headerView.topAnchor.constraint(equalTo: view.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 60),
+            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
+            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            headerView.heightAnchor.constraint(equalToConstant: 64),
             
-            titleLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor, constant: -8),
-            titleLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
+            iconLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
+            iconLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
             
-            closeButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            closeButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
+            titleLabel.leadingAnchor.constraint(equalTo: iconLabel.trailingAnchor, constant: 8),
+            titleLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            
+            closeButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -12),
+            closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
             closeButton.widthAnchor.constraint(equalToConstant: 20),
             closeButton.heightAnchor.constraint(equalToConstant: 20),
             
-            statusIndicator.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            statusIndicator.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            statusIndicator.widthAnchor.constraint(equalToConstant: 8),
-            statusIndicator.heightAnchor.constraint(equalToConstant: 8),
+            statusContainer.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor, constant: -12),
+            statusContainer.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            statusContainer.heightAnchor.constraint(equalToConstant: 24),
+            statusContainer.widthAnchor.constraint(equalToConstant: 60),
             
-            statusLabel.centerYAnchor.constraint(equalTo: statusIndicator.centerYAnchor),
-            statusLabel.leadingAnchor.constraint(equalTo: statusIndicator.trailingAnchor, constant: 6)
+            statusDot.leadingAnchor.constraint(equalTo: statusContainer.leadingAnchor, constant: 8),
+            statusDot.centerYAnchor.constraint(equalTo: statusContainer.centerYAnchor),
+            statusDot.widthAnchor.constraint(equalToConstant: 6),
+            statusDot.heightAnchor.constraint(equalToConstant: 6),
+            
+            statusLabel.leadingAnchor.constraint(equalTo: statusDot.trailingAnchor, constant: 6),
+            statusLabel.centerYAnchor.constraint(equalTo: statusContainer.centerYAnchor),
+            statusLabel.trailingAnchor.constraint(lessThanOrEqualTo: statusContainer.trailingAnchor, constant: -6)
         ])
     }
     
@@ -113,7 +153,7 @@ class TerminalContainerViewController: NSViewController {
         view.addSubview(containerView)
         
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 8),
+            containerView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 16),
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16)
@@ -174,28 +214,51 @@ class TerminalContainerView: NSView {
     
     private func setup() {
         wantsLayer = true
-        layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.3).cgColor
-        layer?.cornerRadius = 12
-        layer?.borderWidth = 2
-        layer?.borderColor = NSColor.tertiaryLabelColor.cgColor
+        layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.05).cgColor
+        layer?.cornerRadius = 16
+        layer?.borderWidth = 1
+        layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.2).cgColor
+        
+        // Add subtle inner shadow for depth
+        let innerShadow = CALayer()
+        innerShadow.frame = CGRect(x: 0, y: 0, width: 1000, height: 1000) // Will be resized
+        innerShadow.backgroundColor = NSColor.black.withAlphaComponent(0.02).cgColor
+        innerShadow.cornerRadius = 16
+        layer?.addSublayer(innerShadow)
         
         setupPlaceholder()
     }
     
     private func setupPlaceholder() {
-        // Main title
-        let titleLabel = NSTextField(labelWithString: "🖥️ Terminal Emulator")
+        // Icon container with modern background
+        let iconContainer = NSView()
+        iconContainer.translatesAutoresizingMaskIntoConstraints = false
+        iconContainer.wantsLayer = true
+        iconContainer.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.1).cgColor
+        iconContainer.layer?.cornerRadius = 24
+        iconContainer.layer?.borderWidth = 1
+        iconContainer.layer?.borderColor = NSColor.controlAccentColor.withAlphaComponent(0.2).cgColor
+        addSubview(iconContainer)
+        
+        let iconLabel = NSTextField(labelWithString: "💻")
+        iconLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconLabel.alignment = .center
+        iconLabel.font = NSFont.systemFont(ofSize: 32)
+        iconContainer.addSubview(iconLabel)
+        
+        // Main title with modern typography
+        let titleLabel = NSTextField(labelWithString: "Terminal Emulator")
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.alignment = .center
-        titleLabel.font = NSFont.systemFont(ofSize: 18, weight: .bold)
+        titleLabel.font = NSFont.systemFont(ofSize: 22, weight: .bold)
         titleLabel.textColor = NSColor.labelColor
         addSubview(titleLabel)
         
-        // Subtitle
-        let subtitleLabel = NSTextField(labelWithString: "Choose your terminal style:")
+        // Subtitle with better styling
+        let subtitleLabel = NSTextField(labelWithString: "Choose your preferred terminal environment")
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         subtitleLabel.alignment = .center
-        subtitleLabel.font = NSFont.systemFont(ofSize: 14, weight: .medium)
+        subtitleLabel.font = NSFont.systemFont(ofSize: 14, weight: .regular)
         subtitleLabel.textColor = NSColor.secondaryLabelColor
         addSubview(subtitleLabel)
         
@@ -216,14 +279,22 @@ class TerminalContainerView: NSView {
         }
         
         NSLayoutConstraint.activate([
+            iconContainer.centerXAnchor.constraint(equalTo: centerXAnchor),
+            iconContainer.topAnchor.constraint(equalTo: topAnchor, constant: 40),
+            iconContainer.widthAnchor.constraint(equalToConstant: 80),
+            iconContainer.heightAnchor.constraint(equalToConstant: 80),
+            
+            iconLabel.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
+            iconLabel.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
+            
             titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 60),
+            titleLabel.topAnchor.constraint(equalTo: iconContainer.bottomAnchor, constant: 20),
             
             subtitleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             
             buttonContainer.centerXAnchor.constraint(equalTo: centerXAnchor),
-            buttonContainer.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 24),
+            buttonContainer.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 32),
             buttonContainer.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 20),
             buttonContainer.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -20)
         ])
@@ -240,25 +311,90 @@ class TerminalContainerView: NSView {
         ]
     }
     
-    private func createTerminalButton(for terminalApp: TerminalApp) -> NSButton {
+    private func createTerminalButton(for terminalApp: TerminalApp) -> NSView {
+        let container = NSView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.wantsLayer = true
+        
+        // Modern card-like design
+        container.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.3).cgColor
+        container.layer?.cornerRadius = 12
+        container.layer?.borderWidth = 1
+        container.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.3).cgColor
+        
+        // Add shadow for depth
+        container.shadow = NSShadow()
+        container.shadow?.shadowOffset = NSSize(width: 0, height: 1)
+        container.shadow?.shadowBlurRadius = 3
+        container.shadow?.shadowColor = NSColor.black.withAlphaComponent(0.1)
+        
+        // Terminal emoji/icon
+        let iconLabel = NSTextField(labelWithString: terminalApp.emoji)
+        iconLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconLabel.font = NSFont.systemFont(ofSize: 24)
+        iconLabel.alignment = .center
+        container.addSubview(iconLabel)
+        
+        // Terminal name
+        let nameLabel = NSTextField(labelWithString: terminalApp.name)
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.font = NSFont.systemFont(ofSize: 16, weight: .semibold)
+        nameLabel.textColor = NSColor.labelColor
+        nameLabel.alignment = .left
+        container.addSubview(nameLabel)
+        
+        // Style label
+        let styleLabel = NSTextField(labelWithString: "Style")
+        styleLabel.translatesAutoresizingMaskIntoConstraints = false
+        styleLabel.font = NSFont.systemFont(ofSize: 12, weight: .regular)
+        styleLabel.textColor = NSColor.secondaryLabelColor
+        styleLabel.alignment = .left
+        container.addSubview(styleLabel)
+        
+        // Invisible button for click handling
         let button = NSButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.title = "\(terminalApp.emoji) \(terminalApp.name) Style"
-        button.bezelStyle = .rounded
-        button.font = NSFont.systemFont(ofSize: 16, weight: .medium)
-        button.contentTintColor = NSColor.controlAccentColor
+        button.title = ""
+        button.bezelStyle = .regularSquare
+        button.isBordered = false
+        button.isTransparent = true
         button.target = self
         button.action = #selector(terminalButtonClicked(_:))
-        
-        // Store terminal app in button's identifier
         button.identifier = NSUserInterfaceItemIdentifier(terminalApp.name)
+        container.addSubview(button)
         
         NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 200),
-            button.heightAnchor.constraint(equalToConstant: 44)
+            container.widthAnchor.constraint(equalToConstant: 240),
+            container.heightAnchor.constraint(equalToConstant: 56),
+            
+            iconLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            iconLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            iconLabel.widthAnchor.constraint(equalToConstant: 32),
+            
+            nameLabel.leadingAnchor.constraint(equalTo: iconLabel.trailingAnchor, constant: 12),
+            nameLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -16),
+            
+            styleLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            styleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
+            styleLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -16),
+            
+            button.topAnchor.constraint(equalTo: container.topAnchor),
+            button.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            button.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
         
-        return button
+        // Add hover effect
+        let trackingArea = NSTrackingArea(
+            rect: container.bounds,
+            options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect],
+            owner: self,
+            userInfo: ["container": container]
+        )
+        container.addTrackingArea(trackingArea)
+        
+        return container
     }
     
     @objc private func terminalButtonClicked(_ sender: NSButton) {
@@ -287,16 +423,59 @@ class TerminalContainerView: NSView {
     private func showLoadingState(for terminalApp: TerminalApp) {
         subviews.forEach { $0.removeFromSuperview() }
         
-        let loadingLabel = NSTextField(labelWithString: "🔄 Starting \(terminalApp.name) style emulator...")
+        // Create loading container
+        let loadingContainer = NSView()
+        loadingContainer.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(loadingContainer)
+        
+        // Loading spinner indicator (using system progress indicator)
+        let progressIndicator = NSProgressIndicator()
+        progressIndicator.translatesAutoresizingMaskIntoConstraints = false
+        progressIndicator.style = .spinning
+        progressIndicator.isIndeterminate = true
+        progressIndicator.startAnimation(nil)
+        loadingContainer.addSubview(progressIndicator)
+        
+        // Terminal icon for context
+        let iconLabel = NSTextField(labelWithString: terminalApp.emoji)
+        iconLabel.translatesAutoresizingMaskIntoConstraints = false
+        iconLabel.alignment = .center
+        iconLabel.font = NSFont.systemFont(ofSize: 24)
+        loadingContainer.addSubview(iconLabel)
+        
+        // Loading text
+        let loadingLabel = NSTextField(labelWithString: "Starting \(terminalApp.name)")
         loadingLabel.translatesAutoresizingMaskIntoConstraints = false
         loadingLabel.alignment = .center
         loadingLabel.font = NSFont.systemFont(ofSize: 16, weight: .medium)
         loadingLabel.textColor = NSColor.labelColor
-        addSubview(loadingLabel)
+        loadingContainer.addSubview(loadingLabel)
+        
+        // Status text
+        let statusLabel = NSTextField(labelWithString: "Initializing shell environment...")
+        statusLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel.alignment = .center
+        statusLabel.font = NSFont.systemFont(ofSize: 12, weight: .regular)
+        statusLabel.textColor = NSColor.secondaryLabelColor
+        loadingContainer.addSubview(statusLabel)
         
         NSLayoutConstraint.activate([
-            loadingLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            loadingLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+            loadingContainer.centerXAnchor.constraint(equalTo: centerXAnchor),
+            loadingContainer.centerYAnchor.constraint(equalTo: centerYAnchor),
+            loadingContainer.widthAnchor.constraint(equalToConstant: 240),
+            loadingContainer.heightAnchor.constraint(equalToConstant: 120),
+            
+            progressIndicator.topAnchor.constraint(equalTo: loadingContainer.topAnchor),
+            progressIndicator.centerXAnchor.constraint(equalTo: loadingContainer.centerXAnchor),
+            
+            iconLabel.topAnchor.constraint(equalTo: progressIndicator.bottomAnchor, constant: 12),
+            iconLabel.centerXAnchor.constraint(equalTo: loadingContainer.centerXAnchor),
+            
+            loadingLabel.topAnchor.constraint(equalTo: iconLabel.bottomAnchor, constant: 8),
+            loadingLabel.centerXAnchor.constraint(equalTo: loadingContainer.centerXAnchor),
+            
+            statusLabel.topAnchor.constraint(equalTo: loadingLabel.bottomAnchor, constant: 4),
+            statusLabel.centerXAnchor.constraint(equalTo: loadingContainer.centerXAnchor)
         ])
     }
     
@@ -304,7 +483,7 @@ class TerminalContainerView: NSView {
         // Clear previous content
         subviews.forEach { $0.removeFromSuperview() }
         
-        // Create main container
+        // Create main container with modern design
         let terminalContainer = NSView()
         terminalContainer.translatesAutoresizingMaskIntoConstraints = false
         terminalContainer.wantsLayer = true
@@ -312,36 +491,73 @@ class TerminalContainerView: NSView {
         // Style based on terminal app
         let (backgroundColor, textColor, font) = getTerminalStyle(for: terminalApp)
         terminalContainer.layer?.backgroundColor = backgroundColor.cgColor
-        terminalContainer.layer?.cornerRadius = 8
+        terminalContainer.layer?.cornerRadius = 12
+        terminalContainer.layer?.borderWidth = 1
+        terminalContainer.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.2).cgColor
+        
+        // Add subtle shadow
+        terminalContainer.shadow = NSShadow()
+        terminalContainer.shadow?.shadowOffset = NSSize(width: 0, height: 2)
+        terminalContainer.shadow?.shadowBlurRadius = 8
+        terminalContainer.shadow?.shadowColor = NSColor.black.withAlphaComponent(0.1)
+        
         addSubview(terminalContainer)
         
-        // Create header
+        // Create header with modern macOS terminal-like design
         let headerView = NSView()
         headerView.translatesAutoresizingMaskIntoConstraints = false
         headerView.wantsLayer = true
-        headerView.layer?.backgroundColor = backgroundColor.blended(withFraction: 0.1, of: NSColor.white)?.cgColor
+        headerView.layer?.backgroundColor = backgroundColor.blended(withFraction: 0.05, of: NSColor.white)?.cgColor
+        headerView.layer?.cornerRadius = 12
+        headerView.layer?.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         terminalContainer.addSubview(headerView)
         
+        // Traffic light buttons (macOS style)
+        let trafficLightContainer = NSView()
+        trafficLightContainer.translatesAutoresizingMaskIntoConstraints = false
+        headerView.addSubview(trafficLightContainer)
+        
+        let closeCircle = NSView()
+        closeCircle.translatesAutoresizingMaskIntoConstraints = false
+        closeCircle.wantsLayer = true
+        closeCircle.layer?.backgroundColor = NSColor.systemRed.cgColor
+        closeCircle.layer?.cornerRadius = 6
+        trafficLightContainer.addSubview(closeCircle)
+        
+        let minimizeCircle = NSView()
+        minimizeCircle.translatesAutoresizingMaskIntoConstraints = false
+        minimizeCircle.wantsLayer = true
+        minimizeCircle.layer?.backgroundColor = NSColor.systemYellow.cgColor
+        minimizeCircle.layer?.cornerRadius = 6
+        trafficLightContainer.addSubview(minimizeCircle)
+        
+        let maximizeCircle = NSView()
+        maximizeCircle.translatesAutoresizingMaskIntoConstraints = false
+        maximizeCircle.wantsLayer = true
+        maximizeCircle.layer?.backgroundColor = NSColor.systemGreen.cgColor
+        maximizeCircle.layer?.cornerRadius = 6
+        trafficLightContainer.addSubview(maximizeCircle)
+        
         // App name and status
-        let titleLabel = NSTextField(labelWithString: "\(terminalApp.emoji) \(terminalApp.name) Emulator")
+        let titleLabel = NSTextField(labelWithString: "\(terminalApp.emoji) \(terminalApp.name)")
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = NSFont.systemFont(ofSize: 12, weight: .medium)
-        titleLabel.textColor = textColor
+        titleLabel.font = NSFont.systemFont(ofSize: 13, weight: .medium)
+        titleLabel.textColor = textColor.withAlphaComponent(0.8)
         titleLabel.backgroundColor = NSColor.clear
         titleLabel.isBordered = false
+        titleLabel.alignment = .center
         headerView.addSubview(titleLabel)
         
-        // Close button
+        // Close button (invisible overlay on red circle)
         let closeButton = NSButton()
         closeButton.translatesAutoresizingMaskIntoConstraints = false
-        closeButton.title = "×"
+        closeButton.title = ""
         closeButton.bezelStyle = .regularSquare
         closeButton.isBordered = false
-        closeButton.font = NSFont.systemFont(ofSize: 14, weight: .bold)
-        closeButton.contentTintColor = textColor.withAlphaComponent(0.7)
+        closeButton.isTransparent = true
         closeButton.target = self
         closeButton.action = #selector(resetToLauncher)
-        headerView.addSubview(closeButton)
+        trafficLightContainer.addSubview(closeButton)
         
         // Create terminal text area
         let scrollView = NSScrollView()
@@ -372,11 +588,15 @@ class TerminalContainerView: NSView {
         scrollView.documentView = textView
         self.terminalTextView = textView
         
-        // Create input area
+        // Create input area with modern design
         let inputContainer = NSView()
         inputContainer.translatesAutoresizingMaskIntoConstraints = false
         inputContainer.wantsLayer = true
-        inputContainer.layer?.backgroundColor = backgroundColor.blended(withFraction: 0.05, of: NSColor.white)?.cgColor
+        inputContainer.layer?.backgroundColor = backgroundColor.blended(withFraction: 0.03, of: NSColor.white)?.cgColor
+        inputContainer.layer?.cornerRadius = 12
+        inputContainer.layer?.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        inputContainer.layer?.borderWidth = 1
+        inputContainer.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.1).cgColor
         terminalContainer.addSubview(inputContainer)
         
         // Prompt label
@@ -414,17 +634,41 @@ class TerminalContainerView: NSView {
             headerView.topAnchor.constraint(equalTo: terminalContainer.topAnchor),
             headerView.leadingAnchor.constraint(equalTo: terminalContainer.leadingAnchor),
             headerView.trailingAnchor.constraint(equalTo: terminalContainer.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 30),
+            headerView.heightAnchor.constraint(equalToConstant: 36),
             
-            // Title
+            // Traffic light container
+            trafficLightContainer.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 12),
+            trafficLightContainer.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            trafficLightContainer.widthAnchor.constraint(equalToConstant: 54),
+            trafficLightContainer.heightAnchor.constraint(equalToConstant: 12),
+            
+            // Close circle (red)
+            closeCircle.leadingAnchor.constraint(equalTo: trafficLightContainer.leadingAnchor),
+            closeCircle.centerYAnchor.constraint(equalTo: trafficLightContainer.centerYAnchor),
+            closeCircle.widthAnchor.constraint(equalToConstant: 12),
+            closeCircle.heightAnchor.constraint(equalToConstant: 12),
+            
+            // Minimize circle (yellow)
+            minimizeCircle.leadingAnchor.constraint(equalTo: closeCircle.trailingAnchor, constant: 9),
+            minimizeCircle.centerYAnchor.constraint(equalTo: trafficLightContainer.centerYAnchor),
+            minimizeCircle.widthAnchor.constraint(equalToConstant: 12),
+            minimizeCircle.heightAnchor.constraint(equalToConstant: 12),
+            
+            // Maximize circle (green)
+            maximizeCircle.leadingAnchor.constraint(equalTo: minimizeCircle.trailingAnchor, constant: 9),
+            maximizeCircle.centerYAnchor.constraint(equalTo: trafficLightContainer.centerYAnchor),
+            maximizeCircle.widthAnchor.constraint(equalToConstant: 12),
+            maximizeCircle.heightAnchor.constraint(equalToConstant: 12),
+            
+            // Title (centered)
+            titleLabel.centerXAnchor.constraint(equalTo: headerView.centerXAnchor),
             titleLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 12),
             
-            // Close button
-            closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            closeButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -8),
-            closeButton.widthAnchor.constraint(equalToConstant: 20),
-            closeButton.heightAnchor.constraint(equalToConstant: 20),
+            // Close button (overlay on close circle)
+            closeButton.topAnchor.constraint(equalTo: closeCircle.topAnchor),
+            closeButton.leadingAnchor.constraint(equalTo: closeCircle.leadingAnchor),
+            closeButton.trailingAnchor.constraint(equalTo: closeCircle.trailingAnchor),
+            closeButton.bottomAnchor.constraint(equalTo: closeCircle.bottomAnchor),
             
             // Terminal text area
             scrollView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
@@ -758,6 +1002,35 @@ class TerminalContainerView: NSView {
         // Reset to launcher
         subviews.forEach { $0.removeFromSuperview() }
         setupPlaceholder()
+    }
+    
+    override func mouseEntered(with event: NSEvent) {
+        if let userInfo = event.trackingArea?.userInfo,
+           let container = userInfo["container"] as? NSView {
+            // Add hover effect
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.15
+                context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                container.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.1).cgColor
+                container.layer?.borderColor = NSColor.controlAccentColor.withAlphaComponent(0.4).cgColor
+                let scaleTransform = CATransform3DMakeScale(1.02, 1.02, 1.0)
+                container.layer?.transform = scaleTransform
+            }
+        }
+    }
+    
+    override func mouseExited(with event: NSEvent) {
+        if let userInfo = event.trackingArea?.userInfo,
+           let container = userInfo["container"] as? NSView {
+            // Remove hover effect
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.15
+                context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+                container.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.3).cgColor
+                container.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.3).cgColor
+                container.layer?.transform = CATransform3DIdentity
+            }
+        }
     }
     
     deinit {
