@@ -812,11 +812,13 @@ extension SidebarViewController: SidebarFavoritesViewDelegate {
         // Hide quick search if it's currently visible
         NotificationCenter.default.post(name: .hideQuickSearch, object: nil)
         
-        // Always navigate in current tab - never create new tab from favorites
+        // Navigate in current tab, or create one with the URL if none exists
         if let currentTab = TabManager.shared.activeTab {
             currentTab.navigate(to: bookmark.url)
+        } else {
+            // Only create a new tab if there are absolutely no tabs - but navigate directly to URL
+            TabManager.shared.createNewTab(with: bookmark.url)
         }
-        // Note: If no active tab exists, we do nothing rather than create a new tab
     }
 }
 
