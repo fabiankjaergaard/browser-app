@@ -197,8 +197,10 @@ class BookmarkManager: ObservableObject {
     static let shared = BookmarkManager()
     
     @Published var bookmarkFolders: [BookmarkFolder] = []
+    @Published var favoriteGroups: [FavoriteGroup] = []
     
     private let bookmarksFileURL: URL
+    private let favoriteGroupsFileURL: URL
     
     private init() {
         // Create bookmarks file URL in Application Support for better persistence
@@ -209,11 +211,15 @@ class BookmarkManager: ObservableObject {
         try? FileManager.default.createDirectory(at: appFolder, withIntermediateDirectories: true)
         
         bookmarksFileURL = appFolder.appendingPathComponent("Bookmarks.json")
+        favoriteGroupsFileURL = appFolder.appendingPathComponent("FavoriteGroups.json")
         
         print("📁 Bookmarks will be saved to: \(bookmarksFileURL.path)")
+        print("📁 Favorite groups will be saved to: \(favoriteGroupsFileURL.path)")
         
         loadBookmarks()
+        loadFavoriteGroups()
         createDefaultFolders()
+        createDefaultFavoriteGroups()
     }
     
     private func createDefaultFolders() {
@@ -327,8 +333,91 @@ class BookmarkManager: ObservableObject {
         NotificationCenter.default.post(name: .bookmarksUpdated, object: nil)
         print("🔄 Swapped bookmarks: '\(bookmark1.title)' <-> '\(bookmark2.title)'")
     }
+    
+    // MARK: - Favorite Groups Management
+    
+    private func createDefaultFavoriteGroups() {
+        if favoriteGroups.isEmpty {
+            // Create Arc-style demo groups
+            let fabianGroup = FavoriteGroup(name: "Fabian", iconName: "globe", color: "systemBlue")
+            fabianGroup.addBookmark(Bookmark(title: "GitHub", url: URL(string: "https://github.com")!))
+            fabianGroup.addBookmark(Bookmark(title: "Personal Site", url: URL(string: "https://fabiankjaergaard.com")!))
+            
+            let portfolioGroup = FavoriteGroup(name: "Portfolio", iconName: "folder", color: "systemGray")
+            portfolioGroup.addBookmark(Bookmark(title: "Behance", url: URL(string: "https://behance.net")!))
+            portfolioGroup.addBookmark(Bookmark(title: "Dribbble", url: URL(string: "https://dribbble.com")!))
+            
+            let uxuiGroup = FavoriteGroup(name: "UX/UI", iconName: "folder", color: "systemGray")
+            uxuiGroup.addBookmark(Bookmark(title: "Figma", url: URL(string: "https://figma.com")!))
+            uxuiGroup.addBookmark(Bookmark(title: "Adobe XD", url: URL(string: "https://adobe.com/xd")!))
+            
+            favoriteGroups = [fabianGroup, portfolioGroup, uxuiGroup]
+            saveFavoriteGroups()
+            
+            print("📁 Created default favorite groups")
+        }
+    }
+    
+    func createFavoriteGroup(name: String, iconName: String = "folder", color: String = "systemBlue") -> FavoriteGroup {
+        let newGroup = FavoriteGroup(name: name, iconName: iconName, color: color)
+        favoriteGroups.append(newGroup)
+        saveFavoriteGroups()
+        NotificationCenter.default.post(name: .favoriteGroupsUpdated, object: nil)
+        print("✅ Created new favorite group: \(name)")
+        return newGroup
+    }
+    
+    func deleteFavoriteGroup(_ group: FavoriteGroup) {
+        favoriteGroups.removeAll { $0.id == group.id }
+        saveFavoriteGroups()
+        NotificationCenter.default.post(name: .favoriteGroupsUpdated, object: nil)
+        print("🗑️ Deleted favorite group: \(group.name)")
+    }
+    
+    func renameFavoriteGroup(_ group: FavoriteGroup, newName: String) {
+        group.name = newName
+        saveFavoriteGroups()
+        NotificationCenter.default.post(name: .favoriteGroupsUpdated, object: nil)
+        print("✏️ Renamed favorite group to: \(newName)")
+    }
+    
+    func updateFavoriteGroup(_ group: FavoriteGroup, iconName: String? = nil, color: String? = nil) {
+        if let iconName = iconName {
+            group.iconName = iconName
+        }
+        if let color = color {
+            group.color = color
+        }
+        saveFavoriteGroups()
+        NotificationCenter.default.post(name: .favoriteGroupsUpdated, object: nil)
+        print("🎨 Updated favorite group: \(group.name)")
+    }
+    
+    private func saveFavoriteGroups() {
+        do {
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(favoriteGroups)
+            try data.write(to: favoriteGroupsFileURL)
+        } catch {
+            print("Failed to save favorite groups: \(error)")
+        }
+    }
+    
+    private func loadFavoriteGroups() {
+        guard FileManager.default.fileExists(atPath: favoriteGroupsFileURL.path) else { return }
+        
+        do {
+            let data = try Data(contentsOf: favoriteGroupsFileURL)
+            let decoder = JSONDecoder()
+            favoriteGroups = try decoder.decode([FavoriteGroup].self, from: data)
+        } catch {
+            print("Failed to load favorite groups: \(error)")
+            favoriteGroups = []
+        }
+    }
 }
 
 extension Notification.Name {
     static let bookmarksUpdated = Notification.Name("BookmarksUpdated")
+    static let favoriteGroupsUpdated = Notification.Name("FavoriteGroupsUpdated")
 }

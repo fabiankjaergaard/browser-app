@@ -78,7 +78,7 @@ class FavoriteGroupView: NSView {
         // Simple minimal icon like Arc
         iconView = NSImageView()
         iconView.translatesAutoresizingMaskIntoConstraints = false
-        iconView.image = NSImage(systemSymbolName: "folder", accessibilityDescription: group.name)
+        iconView.image = NSImage(systemSymbolName: group.iconName, accessibilityDescription: group.name)
         iconView.contentTintColor = ColorManager.secondaryText
         iconView.imageScaling = .scaleProportionallyDown
         
@@ -119,6 +119,9 @@ class FavoriteGroupView: NSView {
         // Add click gesture to header
         let clickGesture = NSClickGestureRecognizer(target: self, action: #selector(toggleExpanded))
         headerView.addGestureRecognizer(clickGesture)
+        
+        // Setup context menu for group actions
+        setupGroupContextMenu()
     }
     
     @objc private func toggleExpanded() {
@@ -129,6 +132,224 @@ class FavoriteGroupView: NSView {
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             contentStackView.isHidden = !group.isExpanded
             expandButton.image = NSImage(systemSymbolName: group.isExpanded ? "chevron.down" : "chevron.right", accessibilityDescription: "Toggle")
+        }
+    }
+    
+    private func setupGroupContextMenu() {
+        // Create context menu for group actions
+        let menu = NSMenu()
+        
+        // Rename group item
+        let renameItem = NSMenuItem(title: "Byt namn på grupp", action: #selector(renameGroup), keyEquivalent: "")
+        renameItem.target = self
+        if let image = NSImage(systemSymbolName: "pencil", accessibilityDescription: "Byt namn") {
+            image.size = NSSize(width: 16, height: 16)
+            renameItem.image = image
+        }
+        menu.addItem(renameItem)
+        
+        // Change icon item
+        let changeIconItem = NSMenuItem(title: "Ändra ikon", action: #selector(changeGroupIcon), keyEquivalent: "")
+        changeIconItem.target = self
+        if let image = NSImage(systemSymbolName: "square.on.circle", accessibilityDescription: "Ändra ikon") {
+            image.size = NSSize(width: 16, height: 16)
+            changeIconItem.image = image
+        }
+        menu.addItem(changeIconItem)
+        
+        // Separator
+        menu.addItem(NSMenuItem.separator())
+        
+        // Delete group item
+        let deleteItem = NSMenuItem(title: "Ta bort grupp", action: #selector(deleteGroup), keyEquivalent: "")
+        deleteItem.target = self
+        if let image = NSImage(systemSymbolName: "trash", accessibilityDescription: "Ta bort") {
+            image.size = NSSize(width: 16, height: 16)
+            deleteItem.image = image
+        }
+        menu.addItem(deleteItem)
+        
+        // Set the menu for the header view
+        headerView.menu = menu
+    }
+    
+    @objc private func renameGroup() {
+        print("📝 Renaming group: \(group.name)")
+        showRenameGroupDialog()
+    }
+    
+    @objc private func changeGroupIcon() {
+        print("🎨 Changing icon for group: \(group.name)")
+        showChangeIconDialog()
+    }
+    
+    @objc private func deleteGroup() {
+        print("🗑️ Deleting group: \(group.name)")
+        showDeleteConfirmation()
+    }
+    
+    private func showRenameGroupDialog() {
+        let alert = NSAlert()
+        alert.messageText = "Byt namn på grupp"
+        alert.informativeText = "Ange ett nytt namn för gruppen '\(group.name)':"
+        alert.addButton(withTitle: "Spara")
+        alert.addButton(withTitle: "Avbryt")
+        alert.alertStyle = .informational
+        
+        // Add text field for new name
+        let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
+        textField.stringValue = group.name
+        textField.placeholderString = "Gruppnamn..."
+        alert.accessoryView = textField
+        
+        if let window = self.window {
+            alert.beginSheetModal(for: window) { response in
+                if response == .alertFirstButtonReturn {
+                    let newName = textField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !newName.isEmpty && newName != self.group.name {
+                        self.performRename(newName: newName)
+                    }
+                }
+            }
+        } else {
+            let response = alert.runModal()
+            if response == .alertFirstButtonReturn {
+                let newName = textField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !newName.isEmpty && newName != group.name {
+                    performRename(newName: newName)
+                }
+            }
+        }
+    }
+    
+    private func showChangeIconDialog() {
+        let alert = NSAlert()
+        alert.messageText = "Ändra ikon för grupp"
+        alert.informativeText = "Välj en ny ikon för gruppen '\(group.name)':"
+        alert.addButton(withTitle: "Spara")
+        alert.addButton(withTitle: "Avbryt")
+        alert.alertStyle = .informational
+        
+        // Create popup button for icon selection
+        let popupButton = NSPopUpButton(frame: NSRect(x: 0, y: 0, width: 300, height: 26))
+        
+        let availableIcons = [
+            ("folder", "Mapp"),
+            ("star", "Stjärna"),
+            ("heart", "Hjärta"), 
+            ("bookmark", "Bokmärke"),
+            ("tag", "Tagg"),
+            ("globe", "Världen"),
+            ("house", "Hem"),
+            ("briefcase", "Portfölj"),
+            ("graduationcap", "Utbildning"),
+            ("music.note", "Musik"),
+            ("gamecontroller", "Spel"),
+            ("camera", "Kamera"),
+            ("paintbrush", "Design"),
+            ("wrench.and.screwdriver", "Utveckling"),
+            ("cart", "Shopping")
+        ]
+        
+        // Populate icon popup
+        for (iconName, displayName) in availableIcons {
+            let menuItem = NSMenuItem(title: displayName, action: nil, keyEquivalent: "")
+            if let image = NSImage(systemSymbolName: iconName, accessibilityDescription: displayName) {
+                image.size = NSSize(width: 16, height: 16)
+                menuItem.image = image
+            }
+            popupButton.menu?.addItem(menuItem)
+        }
+        
+        // Select current icon
+        if let currentIndex = availableIcons.firstIndex(where: { $0.0 == group.iconName }) {
+            popupButton.selectItem(at: currentIndex)
+        }
+        
+        alert.accessoryView = popupButton
+        
+        if let window = self.window {
+            alert.beginSheetModal(for: window) { response in
+                if response == .alertFirstButtonReturn {
+                    let selectedIndex = popupButton.indexOfSelectedItem
+                    if selectedIndex >= 0 && selectedIndex < availableIcons.count {
+                        let newIconName = availableIcons[selectedIndex].0
+                        if newIconName != self.group.iconName {
+                            self.performIconChange(newIconName: newIconName)
+                        }
+                    }
+                }
+            }
+        } else {
+            let response = alert.runModal()
+            if response == .alertFirstButtonReturn {
+                let selectedIndex = popupButton.indexOfSelectedItem
+                if selectedIndex >= 0 && selectedIndex < availableIcons.count {
+                    let newIconName = availableIcons[selectedIndex].0
+                    if newIconName != group.iconName {
+                        performIconChange(newIconName: newIconName)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func showDeleteConfirmation() {
+        let alert = NSAlert()
+        alert.messageText = "Ta bort grupp"
+        alert.informativeText = "Är du säker på att du vill ta bort gruppen '\(group.name)'? Alla bokmärken i gruppen kommer också att tas bort."
+        alert.addButton(withTitle: "Ta bort")
+        alert.addButton(withTitle: "Avbryt")
+        alert.alertStyle = .warning
+        
+        if let window = self.window {
+            alert.beginSheetModal(for: window) { response in
+                if response == .alertFirstButtonReturn {
+                    self.performDelete()
+                }
+            }
+        } else {
+            let response = alert.runModal()
+            if response == .alertFirstButtonReturn {
+                performDelete()
+            }
+        }
+    }
+    
+    private func performRename(newName: String) {
+        BookmarkManager.shared.renameFavoriteGroup(group, newName: newName)
+        titleLabel.stringValue = newName
+        print("✅ Renamed group to: \(newName)")
+    }
+    
+    private func performIconChange(newIconName: String) {
+        BookmarkManager.shared.updateFavoriteGroup(group, iconName: newIconName)
+        iconView.image = NSImage(systemSymbolName: newIconName, accessibilityDescription: group.name)
+        print("✅ Changed group icon to: \(newIconName)")
+    }
+    
+    private func performDelete() {
+        BookmarkManager.shared.deleteFavoriteGroup(group)
+        print("✅ Deleted group: \(group.name)")
+        
+        // The BookmarkManager will send a notification which triggers loadFavoriteGroups
+        // But we can also force immediate removal to avoid visual gaps
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Find the SidebarFavoritesView parent to trigger reload
+            var parentView: SidebarFavoritesView?
+            var currentView: NSView? = self
+            while currentView != nil {
+                if let favoritesView = currentView as? SidebarFavoritesView {
+                    parentView = favoritesView
+                    break
+                }
+                currentView = currentView?.superview
+            }
+            
+            // Trigger immediate reload of groups to prevent gaps
+            parentView?.loadFavoriteGroups()
         }
     }
     
@@ -439,10 +660,21 @@ class SidebarFavoritesView: NSView {
             name: .bookmarksUpdated,
             object: nil
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(favoriteGroupsUpdated),
+            name: .favoriteGroupsUpdated,
+            object: nil
+        )
     }
     
     @objc private func bookmarksUpdated() {
         loadTraditionalFavorites()
+        loadFavoriteGroups()
+    }
+    
+    @objc private func favoriteGroupsUpdated() {
         loadFavoriteGroups()
     }
     
@@ -814,7 +1046,7 @@ class SidebarFavoritesView: NSView {
         }
     }
     
-    private func loadFavoriteGroups() {
+    func loadFavoriteGroups() {
         // Clear existing group views (but keep favorites section)
         groupViews.forEach { $0.removeFromSuperview() }
         groupViews.removeAll()
@@ -829,8 +1061,12 @@ class SidebarFavoritesView: NSView {
             }
         }
         
-        // Create demo groups like Arc
-        createDemoGroups()
+        // Force layout update to remove any gaps
+        stackView.needsUpdateConstraints = true
+        stackView.needsLayout = true
+        
+        // Load groups from BookmarkManager
+        favoriteGroups = BookmarkManager.shared.favoriteGroups
         
         // Add a small separator between favorites and groups (if favorites exist)
         if !favoriteButtons.isEmpty {
@@ -860,38 +1096,67 @@ class SidebarFavoritesView: NSView {
             groupView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
             groupView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
         }
+        
+        // Setup context menu for creating groups
+        setupContextMenu()
     }
     
-    private func createDemoGroups() {
-        // Clear existing groups
-        favoriteGroups.removeAll()
+    private func setupContextMenu() {
+        // Create context menu
+        let menu = NSMenu()
         
-        // Create Arc-style demo groups
-        let fabianGroup = FavoriteGroup(name: "Fabian", iconName: "globe", color: "systemBlue")
-        fabianGroup.addBookmark(Bookmark(title: "GitHub", url: URL(string: "https://github.com")!))
-        fabianGroup.addBookmark(Bookmark(title: "Personal Site", url: URL(string: "https://fabiankjaergaard.com")!))
+        // Add group menu item
+        let addGroupItem = NSMenuItem(title: "Lägg till grupp", action: #selector(showAddGroupDialog), keyEquivalent: "")
+        addGroupItem.target = self
+        if let image = NSImage(systemSymbolName: "folder.badge.plus", accessibilityDescription: "Lägg till grupp") {
+            image.size = NSSize(width: 16, height: 16)
+            addGroupItem.image = image
+        }
+        menu.addItem(addGroupItem)
         
-        let portfolioGroup = FavoriteGroup(name: "Portfolio", iconName: "folder", color: "systemGray")
-        portfolioGroup.addBookmark(Bookmark(title: "Behance", url: URL(string: "https://behance.net")!))
-        portfolioGroup.addBookmark(Bookmark(title: "Dribbble", url: URL(string: "https://dribbble.com")!))
+        // Add separator
+        menu.addItem(NSMenuItem.separator())
         
-        let uxuiGroup = FavoriteGroup(name: "UX/UI", iconName: "folder", color: "systemGray")
-        uxuiGroup.addBookmark(Bookmark(title: "Figma", url: URL(string: "https://figma.com")!))
-        uxuiGroup.addBookmark(Bookmark(title: "Adobe XD", url: URL(string: "https://adobe.com/xd")!))
+        // Add other menu items for future functionality
+        let refreshItem = NSMenuItem(title: "Uppdatera favoriter", action: #selector(refreshFavorites), keyEquivalent: "")
+        refreshItem.target = self
+        if let image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: "Uppdatera") {
+            image.size = NSSize(width: 16, height: 16)
+            refreshItem.image = image
+        }
+        menu.addItem(refreshItem)
         
-        let pluggGroup = FavoriteGroup(name: "PLUGG", iconName: "folder", color: "systemGray")
-        pluggGroup.addBookmark(Bookmark(title: "Canvas", url: URL(string: "https://canvas.com")!))
-        pluggGroup.addBookmark(Bookmark(title: "Coursera", url: URL(string: "https://coursera.org")!))
+        // Set the menu
+        self.menu = menu
+    }
+    
+    @objc private func refreshFavorites() {
+        print("🔄 Refreshing favorites...")
+        loadTraditionalFavorites()
+        loadFavoriteGroups()
+    }
+    
+    // MARK: - Mouse Events for Context Menu
+    override func mouseDown(with event: NSEvent) {
+        // Check if Control key is held down
+        if event.modifierFlags.contains(.control) {
+            print("🖱️ Ctrl+click detected - showing context menu")
+            
+            // Show context menu at mouse location
+            guard let menu = self.menu else {
+                super.mouseDown(with: event)
+                return
+            }
+            
+            // We don't need the mouse location for NSMenu.popUpContextMenu
+            
+            // Show the context menu
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
+            return
+        }
         
-        let appbyggGroup = FavoriteGroup(name: "Appbygg", iconName: "folder", color: "systemGray")
-        appbyggGroup.addBookmark(Bookmark(title: "Xcode Cloud", url: URL(string: "https://developer.apple.com")!))
-        appbyggGroup.addBookmark(Bookmark(title: "TestFlight", url: URL(string: "https://testflight.apple.com")!))
-        
-        let musikGroup = FavoriteGroup(name: "MUSIK", iconName: "folder", color: "systemGray")
-        musikGroup.addBookmark(Bookmark(title: "Spotify", url: URL(string: "https://spotify.com")!))
-        musikGroup.addBookmark(Bookmark(title: "Apple Music", url: URL(string: "https://music.apple.com")!))
-        
-        favoriteGroups = [fabianGroup, portfolioGroup, uxuiGroup, pluggGroup, appbyggGroup, musikGroup]
+        // Normal click behavior
+        super.mouseDown(with: event)
     }
     
     override var intrinsicContentSize: NSSize {
@@ -1361,6 +1626,66 @@ class SidebarFavoritesView: NSView {
         } completionHandler: {
             // Refresh favorites to show new order
             self.loadTraditionalFavorites()
+        }
+    }
+    
+    // MARK: - Add Group Dialog
+    
+    @objc private func showAddGroupDialog() {
+        print("🆕 Showing add group dialog")
+        
+        // Create and configure the add group view controller
+        let addGroupViewController = AddGroupViewController()
+        addGroupViewController.delegate = self
+        
+        // Create a window to contain the view controller
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 400, height: 200),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        
+        window.title = "Skapa ny grupp"
+        window.contentViewController = addGroupViewController
+        window.center()
+        window.level = .floating
+        
+        // Show as a modal sheet if we have a parent window
+        if let parentWindow = self.window {
+            parentWindow.beginSheet(window) { response in
+                // Handle sheet completion if needed
+                print("📝 Add group sheet closed")
+            }
+        } else {
+            // Fallback to showing as a regular window
+            window.makeKeyAndOrderFront(nil)
+        }
+    }
+}
+
+// MARK: - AddGroupViewControllerDelegate
+extension SidebarFavoritesView: AddGroupViewControllerDelegate {
+    func addGroupViewController(_ controller: AddGroupViewController, didCreateGroup name: String, iconName: String, color: String) {
+        print("✅ Creating new group: \(name) with icon: \(iconName) and color: \(color)")
+        
+        // Create the group using BookmarkManager
+        let newGroup = BookmarkManager.shared.createFavoriteGroup(name: name, iconName: iconName, color: color)
+        
+        // Close the dialog
+        if let window = controller.view.window {
+            window.sheetParent?.endSheet(window)
+        }
+        
+        print("🎉 Successfully created group: \(newGroup.name)")
+    }
+    
+    func addGroupViewControllerDidCancel(_ controller: AddGroupViewController) {
+        print("❌ Add group dialog cancelled")
+        
+        // Close the dialog
+        if let window = controller.view.window {
+            window.sheetParent?.endSheet(window)
         }
     }
 }
