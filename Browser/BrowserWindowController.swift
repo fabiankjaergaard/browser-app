@@ -276,6 +276,8 @@ class BrowserWindowController: NSWindowController {
 
     
     deinit {
+        // Terminate ttyd process when window is deallocated
+        claudeCodeSidebarViewController.terminateProcess()
         NotificationCenter.default.removeObserver(self)
     }
 }

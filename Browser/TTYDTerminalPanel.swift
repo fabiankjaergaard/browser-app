@@ -137,6 +137,13 @@ class TTYDTerminalPanel: NSViewController {
     
     override func viewDidAppear() {
         super.viewDidAppear()
+        
+        // If ttyd is not running, restart it
+        if !isttydRunning || ttydProcess == nil {
+            print("🔄 Terminal reopened - restarting ttyd process...")
+            startTTYDProcess()
+        }
+        
         // Focus webview when panel opens
         DispatchQueue.main.async {
             self.view.window?.makeFirstResponder(self.webView)
@@ -494,13 +501,19 @@ class TTYDTerminalPanel: NSViewController {
     }
     
     @objc private func closePanel() {
-        // Terminate ttyd process
-        ttydProcess?.terminate()
-        ttydProcess = nil
-        isttydRunning = false
+        // Don't terminate ttyd process when just closing panel
+        // Keep it running so terminal state is preserved
         
         // Call close callback
         onClose?()
+    }
+    
+    // Method to actually terminate the process when needed
+    func terminateProcess() {
+        ttydProcess?.terminate()
+        ttydProcess = nil
+        isttydRunning = false
+        print("🛑 ttyd process terminated")
     }
     
     override func loadView() {
