@@ -123,13 +123,13 @@ class SettingsNotchView: NSView {
         
         // Create toggle switches for each notch
         let notchConfigs = [
-            ("📄", "Notes", "notesNotchVisible"),
-            ("📝", "Todo List", "todoNotchVisible"),
-            ("🎵", "Media Controls", "mediaNotchVisible"),
-            ("⏱️", "Timer", "timerNotchVisible"),
-            ("🌤️", "Weather", "weatherNotchVisible"),
-            ("📅", "Calendar", "calendarNotchVisible"),
-            ("🎨", "Theme Switcher", "themeNotchVisible")
+            ("", "Notes", "notesNotchVisible"),
+            ("✓", "Todo List", "todoNotchVisible"),
+            ("♫", "Media Controls", "mediaNotchVisible"),
+            ("○", "Timer", "timerNotchVisible"),
+            ("◐", "Weather", "weatherNotchVisible"),
+            ("1", "Calendar", "calendarNotchVisible"),
+            ("◑", "Theme Switcher", "themeNotchVisible")
         ]
         
         for (emoji, title, key) in notchConfigs {
