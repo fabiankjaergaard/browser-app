@@ -273,7 +273,7 @@ class AISidebarViewController: NSViewController {
     }
     
     @objc private func closeAISidebar() {
-        NotificationCenter.default.post(name: .toggleAISidebar, object: nil)
+        NotificationCenter.default.post(name: .toggleTerminal, object: nil)
     }
     
     override func loadView() {
@@ -281,6 +281,4 @@ class AISidebarViewController: NSViewController {
     }
 }
 
-extension Notification.Name {
-    static let toggleAISidebar = Notification.Name("ToggleAISidebar")
-}
+// Extension moved to TerminalViewController.swift

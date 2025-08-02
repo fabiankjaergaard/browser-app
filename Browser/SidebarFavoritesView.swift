@@ -480,6 +480,12 @@ class SidebarFavoritesView: NSView {
         let maxFavorites = 16 // Max 4 rows of 4 favorites each
         let limitedBookmarks = Array(bookmarks.prefix(maxFavorites))
         
+        // If no favorites, show empty container with drag hint
+        if limitedBookmarks.isEmpty {
+            createEmptyFavoritesContainer()
+            return
+        }
+        
         for rowIndex in stride(from: 0, to: limitedBookmarks.count, by: iconsPerRow) {
             // Create horizontal stack view for this row
             let rowStackView = NSStackView()
@@ -513,9 +519,48 @@ class SidebarFavoritesView: NSView {
             print("⚠️ Too many favorites (\(bookmarks.count)). Only showing first \(maxFavorites).")
         }
         
-        // Hide header if no favorites
-        favoritesHeaderLabel.isHidden = limitedBookmarks.isEmpty
-        favoritesStackView.isHidden = limitedBookmarks.isEmpty
+        // Keep header visible always (user should see "Favoriter" section even when empty)
+        favoritesHeaderLabel.isHidden = false
+    }
+    
+    private func createEmptyFavoritesContainer() {
+        // Create empty container that shows drag-and-drop hint
+        let emptyContainer = NSView()
+        emptyContainer.translatesAutoresizingMaskIntoConstraints = false
+        emptyContainer.wantsLayer = true
+        
+        // Subtle border and background to indicate drop zone
+        emptyContainer.layer?.borderWidth = 1
+        emptyContainer.layer?.borderColor = ColorManager.secondaryText.withAlphaComponent(0.3).cgColor
+        emptyContainer.layer?.backgroundColor = ColorManager.secondaryBackground.withAlphaComponent(0.5).cgColor
+        emptyContainer.layer?.cornerRadius = 8
+        
+        // Create icon hint (just the plus icon, no text)
+        let iconView = NSImageView()
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.image = NSImage(systemSymbolName: "plus.circle.dashed", accessibilityDescription: "Add favorites")
+        iconView.contentTintColor = ColorManager.secondaryText.withAlphaComponent(0.5)
+        iconView.imageScaling = .scaleProportionallyDown
+        
+        // Add to container
+        emptyContainer.addSubview(iconView)
+        
+        // Layout constraints
+        NSLayoutConstraint.activate([
+            // Icon centered in container
+            iconView.centerXAnchor.constraint(equalTo: emptyContainer.centerXAnchor),
+            iconView.centerYAnchor.constraint(equalTo: emptyContainer.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 24),
+            iconView.heightAnchor.constraint(equalToConstant: 24),
+            
+            // Container size
+            emptyContainer.heightAnchor.constraint(equalToConstant: 60)
+        ])
+        
+        // Add to favorites stack view
+        favoritesStackView.addArrangedSubview(emptyContainer)
+        
+        print("📋 Created empty favorites container with drag hint")
     }
     
     private func createTraditionalFavoriteButton(for bookmark: Bookmark, at index: Int) -> NSButton {

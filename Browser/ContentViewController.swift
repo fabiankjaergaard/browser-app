@@ -8,6 +8,15 @@ class ContentViewController: NSViewController {
     var findInPageView: FindInPageView!
     private var dragBar: NSView!
     private var blankStartViewController: BlankStartViewController?
+    private var mediaNotchView: MediaNotchView!
+    private var notesNotchView: NotesNotchView!
+    private var todoNotchView: TodoNotchView!
+    private var timerNotchView: TimerNotchView!
+    private var weatherNotchView: WeatherNotchView!
+    private var calendarNotchView: CalendarNotchView!
+    private var themeNotchView: ThemeNotchView!
+    private var settingsNotchView: SettingsNotchView!
+    
     
     private var isSmartModeEnabled = false
     private var quickSearchViewController: QuickSearchViewController?
@@ -19,10 +28,21 @@ class ContentViewController: NSViewController {
         
         setupView()
         setupDragBar()
+        setupMediaNotch()
+        setupNotesNotch()
+        setupTodoNotch()
+        setupTimerNotch()
+        setupWeatherNotch()
+        setupCalendarNotch()
+        setupThemeNotch()
+        setupSettingsNotch()
         setupFindInPageView()
         setupWebViewContainer()
         setupNotifications()
         setupKeyboardShortcuts()
+        
+        // Apply saved notch visibility settings
+        updateNotchVisibility()
         
         // Load initial tab if available, otherwise show blank start page
         if let firstTab = TabManager.shared.activeTab {
@@ -50,6 +70,144 @@ class ContentViewController: NSViewController {
             dragBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             dragBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             dragBar.heightAnchor.constraint(equalToConstant: 45) // Height of draggable area
+        ])
+    }
+    
+    private func setupMediaNotch() {
+        mediaNotchView = MediaNotchView()
+        mediaNotchView.translatesAutoresizingMaskIntoConstraints = false
+        mediaNotchView.delegate = self
+        // Set reference to content view controller for coordination
+        mediaNotchView.contentViewController = self
+        dragBar.addSubview(mediaNotchView)
+        
+        
+        NSLayoutConstraint.activate([
+            // Position media notch from the right edge
+            mediaNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -240),
+            mediaNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            mediaNotchView.widthAnchor.constraint(equalToConstant: 32),
+            mediaNotchView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+    
+    private func setupNotesNotch() {
+        notesNotchView = NotesNotchView()
+        notesNotchView.translatesAutoresizingMaskIntoConstraints = false
+        notesNotchView.delegate = self
+        // Set reference to content view controller for coordination
+        notesNotchView.contentViewController = self
+        dragBar.addSubview(notesNotchView)
+        
+        
+        NSLayoutConstraint.activate([
+            // Position notes notch from the right edge
+            notesNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -320),
+            notesNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            notesNotchView.widthAnchor.constraint(equalToConstant: 32),
+            notesNotchView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+    
+    private func setupTodoNotch() {
+        todoNotchView = TodoNotchView()
+        todoNotchView.translatesAutoresizingMaskIntoConstraints = false
+        todoNotchView.delegate = self
+        // Set reference to content view controller for coordination
+        todoNotchView.contentViewController = self
+        dragBar.addSubview(todoNotchView)
+        
+        
+        NSLayoutConstraint.activate([
+            // Position todo notch from the right edge
+            todoNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -280),
+            todoNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            todoNotchView.widthAnchor.constraint(equalToConstant: 32),
+            todoNotchView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+    
+    private func setupTimerNotch() {
+        timerNotchView = TimerNotchView()
+        timerNotchView.translatesAutoresizingMaskIntoConstraints = false
+        timerNotchView.delegate = self
+        timerNotchView.contentViewController = self
+        dragBar.addSubview(timerNotchView)
+        
+        
+        NSLayoutConstraint.activate([
+            // Position timer notch from the right edge
+            timerNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -200),
+            timerNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            timerNotchView.widthAnchor.constraint(equalToConstant: 32),
+            timerNotchView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+    
+    private func setupWeatherNotch() {
+        weatherNotchView = WeatherNotchView()
+        weatherNotchView.translatesAutoresizingMaskIntoConstraints = false
+        weatherNotchView.delegate = self
+        weatherNotchView.contentViewController = self
+        dragBar.addSubview(weatherNotchView)
+        
+        
+        NSLayoutConstraint.activate([
+            // Position weather notch from the right edge
+            weatherNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -160),
+            weatherNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            weatherNotchView.widthAnchor.constraint(equalToConstant: 32),
+            weatherNotchView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+    
+    private func setupCalendarNotch() {
+        calendarNotchView = CalendarNotchView()
+        calendarNotchView.translatesAutoresizingMaskIntoConstraints = false
+        calendarNotchView.delegate = self
+        calendarNotchView.contentViewController = self
+        dragBar.addSubview(calendarNotchView)
+        
+        
+        NSLayoutConstraint.activate([
+            // Position calendar notch from the right edge
+            calendarNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -120),
+            calendarNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            calendarNotchView.widthAnchor.constraint(equalToConstant: 32),
+            calendarNotchView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+    
+    private func setupThemeNotch() {
+        themeNotchView = ThemeNotchView()
+        themeNotchView.translatesAutoresizingMaskIntoConstraints = false
+        themeNotchView.delegate = self
+        themeNotchView.contentViewController = self
+        dragBar.addSubview(themeNotchView)
+        
+        
+        NSLayoutConstraint.activate([
+            // Position theme notch from the right edge
+            themeNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -80),
+            themeNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            themeNotchView.widthAnchor.constraint(equalToConstant: 32),
+            themeNotchView.heightAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+    
+    private func setupSettingsNotch() {
+        settingsNotchView = SettingsNotchView()
+        settingsNotchView.translatesAutoresizingMaskIntoConstraints = false
+        // Set reference to content view controller for coordination
+        settingsNotchView.contentViewController = self
+        dragBar.addSubview(settingsNotchView)
+        
+        NSLayoutConstraint.activate([
+            // Position settings notch from the right edge
+            settingsNotchView.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: -40),
+            settingsNotchView.centerYAnchor.constraint(equalTo: dragBar.centerYAnchor),
+            settingsNotchView.widthAnchor.constraint(equalToConstant: 32),
+            settingsNotchView.heightAnchor.constraint(equalToConstant: 32)
         ])
     }
     
@@ -109,6 +267,13 @@ class ContentViewController: NSViewController {
             self,
             selector: #selector(showQuickSearch),
             name: .showQuickSearch,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(hideQuickSearchFromNotification),
+            name: .hideQuickSearch,
             object: nil
         )
         
@@ -239,8 +404,11 @@ class ContentViewController: NSViewController {
     }
     
     @objc private func showQuickSearch() {
-        // Don't show if already visible
-        guard quickSearchViewController == nil else { return }
+        // Toggle functionality - if already visible, hide it
+        if quickSearchViewController != nil {
+            hideQuickSearch()
+            return
+        }
         
         // Hide blank start page temporarily while quick search is shown
         if blankStartViewController != nil {
@@ -272,6 +440,11 @@ class ContentViewController: NSViewController {
         }
     }
     
+    @objc private func hideQuickSearchFromNotification() {
+        // Hide quick search when called from notification (e.g., when clicking favorites)
+        hideQuickSearch()
+    }
+    
     private func hideQuickSearch() {
         guard let quickSearch = quickSearchViewController else { return }
         
@@ -286,6 +459,23 @@ class ContentViewController: NSViewController {
         })
     }
     
+    
+    func updateNotchVisibility() {
+        let settings = NotchSettings.shared
+        
+        // Simple visibility control without repositioning
+        mediaNotchView.isHidden = !settings.mediaNotchVisible
+        notesNotchView.isHidden = !settings.notesNotchVisible
+        todoNotchView.isHidden = !settings.todoNotchVisible
+        timerNotchView.isHidden = !settings.timerNotchVisible
+        weatherNotchView.isHidden = !settings.weatherNotchVisible
+        calendarNotchView.isHidden = !settings.calendarNotchVisible
+        themeNotchView.isHidden = !settings.themeNotchVisible
+        
+        print("⚙️ Updated notch visibility based on settings")
+    }
+    
+    
     override func keyDown(with event: NSEvent) {
         // Handle Cmd+F for find in page
         if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "f" {
@@ -293,13 +483,43 @@ class ContentViewController: NSViewController {
             return
         }
         
-        // Handle Cmd+T for new tab
+        // Handle Cmd+T for toggle quick search
         if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "t" {
-            TabManager.shared.createNewTab()
+            showQuickSearch()  // This now toggles the quick search
             return
         }
         
         super.keyDown(with: event)
+    }
+    
+    // MARK: - Notch Coordination
+    
+    func notchWillShow(_ notch: NSView) {
+        // Hide all other notches when one is about to show
+        if notch !== mediaNotchView {
+            mediaNotchView.hideDropdownIfVisible()
+        }
+        if notch !== notesNotchView {
+            notesNotchView.hideDropdownIfVisible()
+        }
+        if notch !== todoNotchView {
+            todoNotchView.hideDropdownIfVisible()
+        }
+        if notch !== timerNotchView {
+            timerNotchView.hideDropdownIfVisible()
+        }
+        if notch !== weatherNotchView {
+            weatherNotchView.hideDropdownIfVisible()
+        }
+        if notch !== calendarNotchView {
+            calendarNotchView.hideDropdownIfVisible()
+        }
+        if notch !== themeNotchView {
+            themeNotchView.hideDropdownIfVisible()
+        }
+        if notch !== settingsNotchView {
+            settingsNotchView.hideDropdownIfVisible()
+        }
     }
     
     // MARK: - Auto-Hide Tracking Area
@@ -378,6 +598,7 @@ class ContentViewController: NSViewController {
         }
         super.mouseExited(with: event)
     }
+    
 }
 
 // Address bar delegate functionality moved to sidebar
@@ -434,6 +655,7 @@ extension ContentViewController {
 extension Notification.Name {
     static let smartModeToggled = Notification.Name("SmartModeToggled")
     static let showQuickSearch = Notification.Name("ShowQuickSearch")
+    static let hideQuickSearch = Notification.Name("HideQuickSearch")
     static let showFindInPage = Notification.Name("ShowFindInPage")
     static let toggleSidebar = Notification.Name("ToggleSidebar")
 }
@@ -474,6 +696,134 @@ extension ContentViewController: QuickSearchDelegate {
 }
 
 
+
+// MARK: - MediaNotchViewDelegate
+extension ContentViewController: MediaNotchViewDelegate {
+    func mediaNotchDidPressPrevious() {
+        print("🎵 Previous track pressed")
+        // Here you can implement integration with media players like Spotify, Apple Music, etc.
+        // For now, we'll use AppleScript to control iTunes/Music app
+        executeAppleScript("tell application \"Music\" to previous track")
+    }
+    
+    func mediaNotchDidPressPlayPause() {
+        print("🎵 Play/Pause pressed")
+        executeAppleScript("tell application \"Music\" to playpause")
+    }
+    
+    func mediaNotchDidPressNext() {
+        print("🎵 Next track pressed")
+        executeAppleScript("tell application \"Music\" to next track")
+    }
+    
+    private func executeAppleScript(_ script: String) {
+        guard let appleScript = NSAppleScript(source: script) else {
+            print("❌ Failed to create AppleScript")
+            return
+        }
+        
+        var error: NSDictionary?
+        let result = appleScript.executeAndReturnError(&error)
+        
+        if let error = error {
+            print("❌ AppleScript error: \(error)")
+            // Fallback: try Spotify if Music app fails
+            if script.contains("Music") {
+                let spotifyScript = script.replacingOccurrences(of: "Music", with: "Spotify")
+                executeSpotifyFallback(spotifyScript)
+            }
+        } else {
+            print("✅ AppleScript executed successfully: \(result)")
+        }
+    }
+    
+    private func executeSpotifyFallback(_ script: String) {
+        guard let appleScript = NSAppleScript(source: script) else { return }
+        var error: NSDictionary?
+        appleScript.executeAndReturnError(&error)
+        
+        if let error = error {
+            print("❌ Spotify AppleScript also failed: \(error)")
+        }
+    }
+}
+
+// MARK: - NotesNotchViewDelegate
+extension ContentViewController: NotesNotchViewDelegate {
+    func notesNotchDidUpdateText(_ text: String) {
+        print("📝 Notes updated: \(text.count) characters")
+        // Here you could implement sync with cloud services, notifications, etc.
+    }
+    
+    func notesNotchDidRequestKeyboardShortcut() {
+        print("📝 Keyboard shortcut requested for notes")
+        // Future implementation for global keyboard shortcuts
+    }
+}
+
+// MARK: - TodoNotchViewDelegate
+extension ContentViewController: TodoNotchViewDelegate {
+    func todoNotchDidUpdateTodos(_ todos: [TodoItem]) {
+        print("✓ Todos updated: \(todos.count) total, \(todos.filter { $0.isCompleted }.count) completed")
+        // Here you could implement sync with cloud services, notifications, etc.
+    }
+    
+    func todoNotchDidRequestKeyboardShortcut() {
+        print("✓ Keyboard shortcut requested for todos")
+        // Future implementation for global keyboard shortcuts
+    }
+}
+
+// MARK: - TimerNotchViewDelegate
+extension ContentViewController: TimerNotchViewDelegate {
+    func timerNotchDidComplete(_ type: TimerType) {
+        print("⏱️ Timer completed: \(type.rawValue)")
+        // Here you could implement additional actions like system notifications
+    }
+    
+    func timerNotchDidStart(_ type: TimerType) {
+        print("⏱️ Timer started: \(type.rawValue)")
+        // Here you could implement focus mode integrations
+    }
+    
+    func timerNotchDidStop() {
+        print("⏱️ Timer stopped")
+    }
+}
+
+// MARK: - WeatherNotchViewDelegate
+extension ContentViewController: WeatherNotchViewDelegate {
+    func weatherNotchDidUpdateWeather(_ weather: WeatherData) {
+        print("🌤️ Weather updated: \(weather.temperatureString) in \(weather.city)")
+        // Here you could implement weather-based suggestions or integrations
+    }
+    
+    func weatherNotchDidFailToLoad(_ error: String) {
+        print("🌤️ Weather failed to load: \(error)")
+        // Here you could implement error handling or fallback behavior
+    }
+}
+
+// MARK: - CalendarNotchViewDelegate
+extension ContentViewController: CalendarNotchViewDelegate {
+    func calendarNotchDidUpdateEvents(_ events: [CalendarEvent]) {
+        print("📅 Calendar updated: \(events.count) events today")
+        // Here you could implement event-based notifications or integrations
+    }
+    
+    func calendarNotchDidRequestEventCreation() {
+        print("📅 Event creation requested")
+        // Here you could implement custom event creation interface
+    }
+}
+
+// MARK: - ThemeNotchViewDelegate
+extension ContentViewController: ThemeNotchViewDelegate {
+    func themeNotchDidToggleTheme(_ isDarkMode: Bool) {
+        print("🎨 Theme toggled: \(isDarkMode ? "Dark" : "Light") mode")
+        // Here you could implement additional theme-based changes or integrations
+    }
+}
 
 // MARK: - DraggableView
 class DraggableView: NSView {

@@ -14,9 +14,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        // Clear any window restoration data to prevent className issues
+        UserDefaults.standard.removeObject(forKey: "NSWindow Frame ")
+        
         // Close any storyboard windows that might have opened
         NSApp.windows.forEach { window in
-            if window.windowController is NSWindowController && !(window.windowController is BrowserWindowController) {
+            if window.windowController != nil && !(window.windowController is BrowserWindowController) {
                 window.close()
             }
         }
@@ -44,7 +47,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         fileMenuItem.submenu = fileMenu
         
         // Override Command+T with our custom action
-        let newTabItem = NSMenuItem(title: "Quick Search", action: #selector(showQuickSearch), keyEquivalent: "t")
+        let newTabItem = NSMenuItem(title: "Toggle Quick Search", action: #selector(toggleQuickSearch), keyEquivalent: "t")
         newTabItem.target = self
         fileMenu.addItem(newTabItem)
         
@@ -70,15 +73,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         toggleSidebarItem.target = self
         viewMenu.addItem(toggleSidebarItem)
         
-        // Toggle AI Assistant
-        let toggleAIAssistantItem = NSMenuItem(title: "Toggle AI Assistant", action: #selector(toggleAIAssistant), keyEquivalent: "e")
-        toggleAIAssistantItem.target = self
-        viewMenu.addItem(toggleAIAssistantItem)
+        // Toggle Terminal
+        let toggleTerminalItem = NSMenuItem(title: "Toggle Terminal", action: #selector(toggleTerminal), keyEquivalent: "e")
+        toggleTerminalItem.target = self
+        viewMenu.addItem(toggleTerminalItem)
         
         NSApp.mainMenu = mainMenu
     }
     
-    @objc private func showQuickSearch() {
+    @objc private func toggleQuickSearch() {
         NotificationCenter.default.post(name: .showQuickSearch, object: nil)
     }
     
@@ -91,8 +94,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.post(name: .toggleSidebar, object: nil)
     }
     
-    @objc private func toggleAIAssistant() {
-        NotificationCenter.default.post(name: .toggleAISidebar, object: nil)
+    @objc private func toggleTerminal() {
+        NotificationCenter.default.post(name: .toggleTerminal, object: nil)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -100,7 +103,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
-        return true
+        return false  // Disable window restoration to prevent className issues
+    }
+    
+    func application(_ application: NSApplication, willEncodeRestorableState coder: NSCoder) {
+        // Prevent any restoration encoding
+    }
+    
+    func application(_ application: NSApplication, didDecodeRestorableState coder: NSCoder) {
+        // Prevent any restoration decoding
     }
 
 

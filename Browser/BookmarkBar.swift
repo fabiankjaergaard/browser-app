@@ -201,9 +201,16 @@ class BookmarkManager: ObservableObject {
     private let bookmarksFileURL: URL
     
     private init() {
-        // Create bookmarks file URL
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        bookmarksFileURL = documentsPath.appendingPathComponent("Bookmarks.json")
+        // Create bookmarks file URL in Application Support for better persistence
+        let appSupportPath = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let appFolder = appSupportPath.appendingPathComponent("Browser")
+        
+        // Create app folder if it doesn't exist
+        try? FileManager.default.createDirectory(at: appFolder, withIntermediateDirectories: true)
+        
+        bookmarksFileURL = appFolder.appendingPathComponent("Bookmarks.json")
+        
+        print("📁 Bookmarks will be saved to: \(bookmarksFileURL.path)")
         
         loadBookmarks()
         createDefaultFolders()
@@ -211,28 +218,14 @@ class BookmarkManager: ObservableObject {
     
     private func createDefaultFolders() {
         if bookmarkFolders.isEmpty {
-            // Create default folders
+            // Create empty default folders - no example bookmarks
             let bookmarksBar = BookmarkFolder(name: "Bookmarks Bar")
             let otherBookmarks = BookmarkFolder(name: "Other Bookmarks")
             
-            // Add some default bookmarks to the bar
-            let googleBookmark = Bookmark(title: "Google", url: URL(string: "https://www.google.com")!)
-            let githubBookmark = Bookmark(title: "GitHub", url: URL(string: "https://github.com")!)
-            let stackOverflowBookmark = Bookmark(title: "Stack Overflow", url: URL(string: "https://stackoverflow.com")!)
-            let facebookBookmark = Bookmark(title: "Facebook", url: URL(string: "https://www.facebook.com")!)
-            
-            bookmarksBar.addBookmark(googleBookmark)
-            bookmarksBar.addBookmark(githubBookmark)
-            bookmarksBar.addBookmark(stackOverflowBookmark)
-            bookmarksBar.addBookmark(facebookBookmark)
-            
-            // Load favicons for default bookmarks
-            [googleBookmark, githubBookmark, stackOverflowBookmark, facebookBookmark].forEach { bookmark in
-                bookmark.loadFavicon()
-            }
-            
             bookmarkFolders = [bookmarksBar, otherBookmarks]
             saveBookmarks()
+            
+            print("📁 Created empty bookmark folders - ready for your own favorites!")
         } else {
             // Load favicons for existing bookmarks that don't have them
             loadFaviconsForExistingBookmarks()

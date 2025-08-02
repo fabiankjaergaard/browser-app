@@ -133,6 +133,10 @@ class SidebarViewController: NSViewController {
     private var sidebarTabViews: [SidebarTabView] = []
     private var toolbar: NSView!
     
+    // Downloads
+    private var downloadsButton: NSButton!
+    private var downloadsBadge: NSView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -143,6 +147,13 @@ class SidebarViewController: NSViewController {
         setupToolbar()
         setupNotifications()
         setupAutoHideInteraction()
+        
+        // Initial badge update
+        updateDownloadsBadge()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewDidAppear() {
@@ -413,6 +424,45 @@ class SidebarViewController: NSViewController {
         toolbar.translatesAutoresizingMaskIntoConstraints = false
         toolbar.wantsLayer = true
         
+        // Downloads button (left side) - Proper download icon
+        let downloadsButton = NSButton(image: NSImage(systemSymbolName: "arrow.down", accessibilityDescription: "Downloads")!, target: self, action: #selector(showDownloads))
+        downloadsButton.translatesAutoresizingMaskIntoConstraints = false
+        downloadsButton.bezelStyle = .regularSquare
+        downloadsButton.isBordered = false
+        downloadsButton.contentTintColor = ColorManager.secondaryText
+        downloadsButton.toolTip = "Show downloads"
+        downloadsButton.wantsLayer = true
+        
+        // Store reference for animations
+        self.downloadsButton = downloadsButton
+        
+        // Add hover effect for downloads button
+        if let downloadsLayer = downloadsButton.layer {
+            downloadsLayer.cornerRadius = 6
+        }
+        
+        // Downloads indicator - Subtle dot
+        let downloadsBadge = NSView()
+        downloadsBadge.translatesAutoresizingMaskIntoConstraints = false
+        downloadsBadge.wantsLayer = true
+        downloadsBadge.isHidden = true
+        
+        // Design-matched accent dot styling
+        if let dotLayer = downloadsBadge.layer {
+            dotLayer.backgroundColor = ColorManager.accent.cgColor
+            dotLayer.cornerRadius = 4 // Will make it perfectly circular with 8x8 size
+            
+            // Subtle glow matching accent color
+            dotLayer.shadowColor = ColorManager.accent.cgColor
+            dotLayer.shadowOffset = CGSize(width: 0, height: 0)
+            dotLayer.shadowRadius = 3
+            dotLayer.shadowOpacity = 0.7
+        }
+        
+        // Store reference for animations
+        self.downloadsBadge = downloadsBadge
+        
+        // History button (right side)
         let historyButton = NSButton(image: NSImage(systemSymbolName: "clock", accessibilityDescription: "History")!, target: self, action: #selector(showHistory))
         historyButton.translatesAutoresizingMaskIntoConstraints = false
         historyButton.bezelStyle = .regularSquare
@@ -426,6 +476,8 @@ class SidebarViewController: NSViewController {
             historyLayer.cornerRadius = 6
         }
         
+        toolbar.addSubview(downloadsButton)
+        toolbar.addSubview(downloadsBadge)
         toolbar.addSubview(historyButton)
         view.addSubview(toolbar)
         
@@ -439,6 +491,18 @@ class SidebarViewController: NSViewController {
             // Tab scroll view should not overlap with toolbar
             tabScrollView.bottomAnchor.constraint(lessThanOrEqualTo: toolbar.topAnchor, constant: -8),
             
+            // Downloads button on the left
+            downloadsButton.centerYAnchor.constraint(equalTo: toolbar.centerYAnchor),
+            downloadsButton.leadingAnchor.constraint(equalTo: toolbar.leadingAnchor, constant: 12),
+            downloadsButton.widthAnchor.constraint(equalToConstant: 28),
+            
+            // Downloads dot (positioned diagonally above-right of downloads button)
+            downloadsBadge.topAnchor.constraint(equalTo: downloadsButton.topAnchor, constant: -6),
+            downloadsBadge.trailingAnchor.constraint(equalTo: downloadsButton.trailingAnchor, constant: 3),
+            downloadsBadge.widthAnchor.constraint(equalToConstant: 8),
+            downloadsBadge.heightAnchor.constraint(equalToConstant: 8),
+            
+            // History button on the right
             historyButton.centerYAnchor.constraint(equalTo: toolbar.centerYAnchor),
             historyButton.trailingAnchor.constraint(equalTo: toolbar.trailingAnchor, constant: -12),
             historyButton.widthAnchor.constraint(equalToConstant: 28)
@@ -448,6 +512,17 @@ class SidebarViewController: NSViewController {
     
     @objc private func addNewTab() {
         NotificationCenter.default.post(name: .showQuickSearch, object: nil)
+    }
+    
+    @objc private func showDownloads() {
+        print("🔽 Downloads button clicked - showing downloads window")
+        let downloadsViewController = DownloadsViewController()
+        let window = NSWindow(contentViewController: downloadsViewController)
+        window.title = "Downloads"
+        window.setContentSize(NSSize(width: 800, height: 600))
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        print("✅ Downloads window should now be visible")
     }
     
     @objc private func showHistory() {
@@ -466,6 +541,7 @@ class SidebarViewController: NSViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(handleTabClosed(_:)), name: .tabClosed, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleSpaceChanged(_:)), name: .spaceChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTabUpdated(_:)), name: .tabUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadAdded(_:)), name: .downloadAdded, object: nil)
     }
     
     @objc private func handleTabCreated(_ notification: Notification) {
@@ -501,6 +577,13 @@ class SidebarViewController: NSViewController {
         if TabManager.shared.activeTab?.id == tab.id {
             updateAddressBar(for: tab)
         }
+    }
+    
+    @objc private func handleDownloadAdded(_ notification: Notification) {
+        print("📦 Download added - showing badge indicator")
+        
+        // Update badge count (blue dot indicator) - no button animations
+        updateDownloadsBadge()
     }
     
     private func refreshTabs() {
@@ -726,6 +809,9 @@ class SidebarViewController: NSViewController {
 // MARK: - SidebarFavoritesViewDelegate
 extension SidebarViewController: SidebarFavoritesViewDelegate {
     func sidebarFavoritesView(_ favoritesView: SidebarFavoritesView, didClickFavorite bookmark: Bookmark) {
+        // Hide quick search if it's currently visible
+        NotificationCenter.default.post(name: .hideQuickSearch, object: nil)
+        
         // Navigate to favorite URL in current tab, or create new tab if none exists
         if let currentTab = TabManager.shared.activeTab {
             currentTab.navigate(to: bookmark.url)
@@ -775,6 +861,174 @@ extension SidebarViewController: NSTextFieldDelegate {
         // Navigate to the URL
         TabManager.shared.activeTab?.navigate(to: finalURL)
     }
+    
+    // MARK: - Downloads Animation & Badge
+    private func updateDownloadsBadge() {
+        let downloadCount = DownloadsManager.shared.getDownloads().count
+        
+        DispatchQueue.main.async {
+            if downloadCount > 0 {
+                let wasHidden = self.downloadsBadge.isHidden
+                self.downloadsBadge.isHidden = false
+                
+                if wasHidden {
+                    // Simple bounce-in animation for new dot
+                    self.downloadsBadge.layer?.transform = CATransform3DMakeScale(0.1, 0.1, 1.0)
+                    self.downloadsBadge.layer?.opacity = 0
+                    
+                    NSAnimationContext.runAnimationGroup({ context in
+                        context.duration = 0.4
+                        context.timingFunction = CAMediaTimingFunction(controlPoints: 0.68, -0.55, 0.265, 1.55) // Bounce
+                        self.downloadsBadge.layer?.transform = CATransform3DIdentity
+                        self.downloadsBadge.layer?.opacity = 1
+                    }, completionHandler: {
+                        // Add subtle pulsing glow effect
+                        self.addPulsingGlowEffect()
+                    })
+                }
+            } else {
+                // Simple fade out
+                NSAnimationContext.runAnimationGroup({ context in
+                    context.duration = 0.2
+                    context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                    self.downloadsBadge.layer?.opacity = 0
+                }, completionHandler: {
+                    self.downloadsBadge.isHidden = true
+                    self.downloadsBadge.layer?.removeAllAnimations()
+                    self.downloadsButton.contentTintColor = ColorManager.secondaryText
+                    
+                    // Remove indicator ring when no downloads
+                    self.removeDownloadsIndicatorRing()
+                })
+            }
+        }
+    }
+    
+    private func animateDownloadsButton() {
+        print("🎬 Starting downloads button animation")
+        DispatchQueue.main.async {
+            guard let layer = self.downloadsButton.layer else { 
+                print("❌ No layer found for downloads button")
+                return 
+            }
+            print("✨ Applying pulse animation to downloads button")
+            
+            // Enhanced pulse animation with bounce
+            let pulseAnimation = CAKeyframeAnimation(keyPath: "transform.scale")
+            pulseAnimation.values = [1.0, 1.3, 0.9, 1.15, 1.0]
+            pulseAnimation.keyTimes = [0, 0.3, 0.5, 0.8, 1.0]
+            pulseAnimation.duration = 0.8
+            pulseAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            
+            layer.add(pulseAnimation, forKey: "downloadPulse")
+            print("🔥 Added pulse animation to layer")
+            
+            // Sophisticated color animation with glow
+            print("🎨 Starting color animation")
+            NSAnimationContext.runAnimationGroup({ context in
+                context.duration = 0.4
+                context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                self.downloadsButton.contentTintColor = NSColor.systemGreen
+                
+                // Add temporary glow effect to button
+                layer.shadowColor = NSColor.systemGreen.cgColor
+                layer.shadowOffset = CGSize(width: 0, height: 0)
+                layer.shadowRadius = 4
+                layer.shadowOpacity = 0.6
+            }, completionHandler: {
+                NSAnimationContext.runAnimationGroup({ context in
+                    context.duration = 1.0
+                    context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    self.downloadsButton.contentTintColor = ColorManager.primaryText
+                    
+                    // Remove glow
+                    layer.shadowOpacity = 0
+                }, completionHandler: nil)
+            })
+        }
+    }
+    
+    private func addPulsingGlowEffect() {
+        guard let dotLayer = downloadsBadge.layer else { return }
+        
+        // Create subtle pulsing glow effect for the dot
+        let glowAnimation = CABasicAnimation(keyPath: "shadowOpacity")
+        glowAnimation.fromValue = 0.4
+        glowAnimation.toValue = 0.8
+        glowAnimation.duration = 1.2
+        glowAnimation.autoreverses = true
+        glowAnimation.repeatCount = .infinity
+        glowAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        dotLayer.add(glowAnimation, forKey: "dotGlow")
+    }
+    
+    private func addDownloadsIndicatorRing() {
+        guard let buttonLayer = downloadsButton.layer else { return }
+        
+        // Remove existing ring if any
+        buttonLayer.sublayers?.removeAll { $0.name == "downloadsRing" }
+        
+        // Only add ring if there are downloads
+        let downloadCount = DownloadsManager.shared.getDownloads().count
+        guard downloadCount > 0 else { return }
+        
+        // Create elegant ring around button
+        let ringLayer = CAShapeLayer()
+        ringLayer.name = "downloadsRing"
+        let ringPath = NSBezierPath(ovalIn: CGRect(x: -2, y: -2, width: 32, height: 32))
+        ringLayer.path = ringPath.cgPath
+        ringLayer.fillColor = NSColor.clear.cgColor
+        ringLayer.strokeColor = ColorManager.primaryText.withAlphaComponent(0.6).cgColor
+        ringLayer.lineWidth = 1.5
+        ringLayer.opacity = 0
+        
+        buttonLayer.addSublayer(ringLayer)
+        
+        // Animate ring appearance
+        let fadeIn = CABasicAnimation(keyPath: "opacity")
+        fadeIn.fromValue = 0
+        fadeIn.toValue = 0.8
+        fadeIn.duration = 0.4
+        fadeIn.fillMode = .forwards
+        fadeIn.isRemovedOnCompletion = false
+        
+        // Add subtle pulsing to ring
+        let pulseAnimation = CABasicAnimation(keyPath: "opacity")
+        pulseAnimation.fromValue = 0.3
+        pulseAnimation.toValue = 0.8
+        pulseAnimation.duration = 2.0
+        pulseAnimation.autoreverses = true
+        pulseAnimation.repeatCount = .infinity
+        pulseAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        ringLayer.add(fadeIn, forKey: "ringFadeIn")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            ringLayer.add(pulseAnimation, forKey: "ringPulse")
+        }
+    }
+    
+    private func removeDownloadsIndicatorRing() {
+        guard let buttonLayer = downloadsButton.layer else { return }
+        
+        // Find and animate out the ring
+        if let ringLayer = buttonLayer.sublayers?.first(where: { $0.name == "downloadsRing" }) {
+            let fadeOut = CABasicAnimation(keyPath: "opacity")
+            fadeOut.fromValue = ringLayer.opacity
+            fadeOut.toValue = 0
+            fadeOut.duration = 0.3
+            fadeOut.fillMode = .forwards
+            fadeOut.isRemovedOnCompletion = false
+            
+            ringLayer.add(fadeOut, forKey: "ringFadeOut")
+            
+            // Remove layer after animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                ringLayer.removeFromSuperlayer()
+            }
+        }
+    }
 }
 
 
@@ -790,5 +1044,34 @@ extension NSView {
             result.append(contentsOf: subview.allSubviews)
         }
         return result
+    }
+}
+
+extension NSBezierPath {
+    var cgPath: CGPath {
+        let path = CGMutablePath()
+        var points = [CGPoint](repeating: .zero, count: 3)
+        
+        for i in 0..<elementCount {
+            let type = element(at: i, associatedPoints: &points)
+            switch type {
+            case .moveTo:
+                path.move(to: points[0])
+            case .lineTo:
+                path.addLine(to: points[0])
+            case .curveTo:
+                path.addCurve(to: points[2], control1: points[0], control2: points[1])
+            case .cubicCurveTo:
+                path.addCurve(to: points[2], control1: points[0], control2: points[1])
+            case .quadraticCurveTo:
+                path.addQuadCurve(to: points[1], control: points[0])
+            case .closePath:
+                path.closeSubpath()
+            @unknown default:
+                break
+            }
+        }
+        
+        return path
     }
 }

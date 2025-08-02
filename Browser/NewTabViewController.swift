@@ -369,9 +369,9 @@ class NewTabViewController: NSViewController {
             NSWorkspace.shared.open(URL(fileURLWithPath: NSHomeDirectory() + "/Downloads"))
             break
         case aiAssistantContainer:
-            print("AI Assistant clicked")
-            // Toggle AI sidebar
-            NotificationCenter.default.post(name: .toggleAISidebar, object: nil)
+            print("Terminal clicked")
+            // Toggle Terminal sidebar
+            NotificationCenter.default.post(name: .toggleTerminal, object: nil)
             break
         default:
             break

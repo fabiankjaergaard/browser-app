@@ -710,6 +710,12 @@ class QuickSearchViewController: NSViewController {
     // Shortcut actions removed per user request
     
     override func keyDown(with event: NSEvent) {
+        // Handle Cmd+T to toggle/close quick search
+        if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "t" {
+            dismiss()
+            return
+        }
+        
         switch event.keyCode {
         case 53: // ESC key
             dismiss()

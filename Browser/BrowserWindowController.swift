@@ -7,10 +7,10 @@ class BrowserWindowController: NSWindowController {
     var splitViewController: NSSplitViewController!
     var sidebarViewController: SidebarViewController!
     var browserContentViewController: ContentViewController!
-    var aiSidebarViewController: AISidebarViewController!
+    var claudeCodeSidebarViewController: TTYDTerminalPanel!
     
-    private var aiSidebarItem: NSSplitViewItem?
-    private var isAISidebarVisible = false
+    private var claudeCodeSidebarItem: NSSplitViewItem?
+    private var isClaudeCodeSidebarVisible = false
     private var sidebarItem: NSSplitViewItem?
     private var isSidebarVisible = true
     internal var isSidebarAutoHidden = false
@@ -51,25 +51,28 @@ class BrowserWindowController: NSWindowController {
         splitViewController.splitView.dividerStyle = .thin
         splitViewController.splitView.isVertical = true
         
-        // Allow user to resize by dragging dividers
+        // Prevent sidebar resizing by user
         
         sidebarViewController = SidebarViewController()
         sidebarItem = NSSplitViewItem(sidebarWithViewController: sidebarViewController)
-        sidebarItem!.minimumThickness = 160
-        sidebarItem!.maximumThickness = 400  // Increased from 280 to give more flexibility
+        sidebarItem!.minimumThickness = 220
+        sidebarItem!.maximumThickness = 220  // Same as minimum for fixed size
         sidebarItem!.canCollapse = false
         
         browserContentViewController = ContentViewController()
         let contentItem = NSSplitViewItem(viewController: browserContentViewController)
         
-        // Setup AI sidebar (initially hidden)
-        aiSidebarViewController = AISidebarViewController()
-        aiSidebarItem = NSSplitViewItem(viewController: aiSidebarViewController)
-        aiSidebarItem!.minimumThickness = 320
-        aiSidebarItem!.maximumThickness = 400
-        aiSidebarItem!.isCollapsed = true
+        // Setup Claude Code sidebar (initially hidden)
+        claudeCodeSidebarViewController = TTYDTerminalPanel()
+        claudeCodeSidebarViewController.onClose = { [weak self] in
+            self?.toggleTerminalSidebar()
+        }
+        claudeCodeSidebarItem = NSSplitViewItem(viewController: claudeCodeSidebarViewController)
+        claudeCodeSidebarItem!.minimumThickness = 320
+        claudeCodeSidebarItem!.maximumThickness = 600
+        claudeCodeSidebarItem!.isCollapsed = true
         
-        splitViewController.splitViewItems = [sidebarItem!, contentItem, aiSidebarItem!]
+        splitViewController.splitViewItems = [sidebarItem!, contentItem, claudeCodeSidebarItem!]
         
         window?.contentViewController = splitViewController
     }
@@ -78,8 +81,8 @@ class BrowserWindowController: NSWindowController {
     private func setupNotifications() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(toggleAISidebar),
-            name: .toggleAISidebar,
+            selector: #selector(toggleTerminalSidebar),
+            name: .toggleTerminal,
             object: nil
         )
         
@@ -91,15 +94,15 @@ class BrowserWindowController: NSWindowController {
         )
     }
     
-    @objc func toggleAISidebar() {
-        guard let aiSidebarItem = aiSidebarItem else { return }
+    @objc func toggleTerminalSidebar() {
+        guard let claudeCodeSidebarItem = claudeCodeSidebarItem else { return }
         
-        isAISidebarVisible.toggle()
+        isClaudeCodeSidebarVisible.toggle()
         
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.3
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            aiSidebarItem.animator().isCollapsed = !isAISidebarVisible
+            claudeCodeSidebarItem.animator().isCollapsed = !isClaudeCodeSidebarVisible
         }
     }
     
@@ -215,8 +218,8 @@ class BrowserWindowController: NSWindowController {
     
     @objc private func windowWillEnterFullScreen() {
         // Optimize layout for fullscreen
-        if isAISidebarVisible {
-            aiSidebarItem?.maximumThickness = 450
+        if isClaudeCodeSidebarVisible {
+            claudeCodeSidebarItem?.maximumThickness = 700
         }
         // Enable auto-hiding scrollers for cleaner fullscreen experience
         sidebarViewController.tabScrollView?.autohidesScrollers = true
@@ -224,7 +227,7 @@ class BrowserWindowController: NSWindowController {
     
     @objc private func windowWillExitFullScreen() {
         // Restore normal layout
-        aiSidebarItem?.maximumThickness = 400
+        claudeCodeSidebarItem?.maximumThickness = 600
         sidebarViewController.tabScrollView?.autohidesScrollers = true
     }
     
@@ -268,6 +271,7 @@ class BrowserWindowController: NSWindowController {
         
         print("🚦 Traffic lights \(shouldHideTrafficLights ? "hidden" : "visible") - Sidebar: \(isSidebarVisible), AutoHidden: \(isSidebarAutoHidden)")
     }
+    
     
 
     
