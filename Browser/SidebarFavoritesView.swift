@@ -4,6 +4,7 @@ protocol SidebarFavoritesViewDelegate: AnyObject {
     func sidebarFavoritesView(_ favoritesView: SidebarFavoritesView, didClickFavorite bookmark: Bookmark)
 }
 
+
 // MARK: - Favorite Group View (Arc-style)
 class FavoriteGroupView: NSView {
     private let group: FavoriteGroup
@@ -117,7 +118,7 @@ class FavoriteGroupView: NSView {
         ])
         
         // Add click gesture to header
-        let clickGesture = NSClickGestureRecognizer(target: self, action: #selector(toggleExpanded))
+        let clickGesture = NSClickGestureRecognizer(target: self, action: #selector(headerClicked(_:)))
         headerView.addGestureRecognizer(clickGesture)
         
         // Setup context menu for group actions
@@ -172,6 +173,39 @@ class FavoriteGroupView: NSView {
         // Set the menu for the header view
         headerView.menu = menu
     }
+    
+    @objc private func headerClicked(_ gesture: NSClickGestureRecognizer) {
+        // Get the event from the gesture recognizer
+        if let event = NSApp.currentEvent {
+            // Check if Control key is held down
+            if event.modifierFlags.contains(.control) {
+                print("🖱️ Ctrl+click detected on group: \(group.name) - showing context menu")
+                
+                // Show context menu at mouse location
+                guard let menu = headerView.menu else {
+                    toggleExpanded()
+                    return
+                }
+                
+                // Show the context menu
+                NSMenu.popUpContextMenu(menu, with: event, for: headerView)
+                
+                // Force layout update after context menu to prevent gaps
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    if let parentFavoritesView = self.superview?.superview as? SidebarFavoritesView {
+                        parentFavoritesView.needsLayout = true
+                        parentFavoritesView.layoutSubtreeIfNeeded()
+                    }
+                }
+                return
+            }
+        }
+        
+        // Normal click behavior - toggle expansion
+        toggleExpanded()
+    }
+    
     
     @objc private func renameGroup() {
         print("📝 Renaming group: \(group.name)")
@@ -1152,6 +1186,13 @@ class SidebarFavoritesView: NSView {
             
             // Show the context menu
             NSMenu.popUpContextMenu(menu, with: event, for: self)
+            
+            // Force layout update after context menu to prevent gaps
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.needsLayout = true
+                self.layoutSubtreeIfNeeded()
+            }
             return
         }
         
