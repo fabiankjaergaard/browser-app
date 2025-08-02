@@ -116,13 +116,16 @@ class TTYDTerminalPanel: NSViewController {
     private var headerView: NSView!
     private var closeButton: NSButton!
     private var titleLabel: NSTextField!
-    private var webView: WKWebView!
+    private var tabBarView: TerminalTabBarView!
+    private var terminalContainer: NSView!
+    private var webViewsContainer: NSView!
     private var dragOverlay: DragOverlayView?
     
-    // ttyd process
-    private var ttydProcess: Process?
-    private var isttydRunning = false
-    private var ttydPort: Int = 7681
+    // Terminal management
+    private var terminalWebViews: [UUID: WKWebView] = [:]
+    private var terminalProcesses: [UUID: Process] = [:]
+    private var terminalPorts: [UUID: Int] = [:]
+    private var currentTerminalTab: TerminalTab?
     
     // Panel state
     var onClose: (() -> Void)?
@@ -131,22 +134,28 @@ class TTYDTerminalPanel: NSViewController {
         super.viewDidLoad()
         setupFloatingPanel()
         setupHeader()
-        setupWebView()
-        startTTYDProcess()
+        setupTabBar()
+        setupTerminalContainer()
+        setupNotifications()
+        
+        // Create initial terminal tab if none exist
+        if !TerminalTabManager.shared.hasAnyTabs() {
+            let initialTab = TerminalTabManager.shared.createNewTerminalTab()
+            switchToTerminalTab(initialTab)
+        } else if let activeTab = TerminalTabManager.shared.activeTerminalTab {
+            switchToTerminalTab(activeTab)
+        }
     }
     
     override func viewDidAppear() {
         super.viewDidAppear()
         
-        // If ttyd is not running, restart it
-        if !isttydRunning || ttydProcess == nil {
-            print("🔄 Terminal reopened - restarting ttyd process...")
-            startTTYDProcess()
-        }
-        
-        // Focus webview when panel opens
-        DispatchQueue.main.async {
-            self.view.window?.makeFirstResponder(self.webView)
+        // Focus current webview when panel opens
+        if let currentTab = currentTerminalTab,
+           let webView = terminalWebViews[currentTab.id] {
+            DispatchQueue.main.async {
+                self.view.window?.makeFirstResponder(webView)
+            }
         }
     }
     
@@ -195,21 +204,6 @@ class TTYDTerminalPanel: NSViewController {
         
         view.addSubview(headerView)
         
-        // Traffic light style indicators
-        let trafficLightContainer = NSStackView()
-        trafficLightContainer.translatesAutoresizingMaskIntoConstraints = false
-        trafficLightContainer.orientation = .horizontal
-        trafficLightContainer.spacing = 8
-        
-        let closeLight = createTrafficLight(color: .systemRed)
-        let minimizeLight = createTrafficLight(color: .systemYellow)
-        let expandLight = createTrafficLight(color: .systemGreen)
-        
-        trafficLightContainer.addArrangedSubview(closeLight)
-        trafficLightContainer.addArrangedSubview(minimizeLight)
-        trafficLightContainer.addArrangedSubview(expandLight)
-        
-        headerView.addSubview(trafficLightContainer)
         
         // Terminal title with modern typography
         titleLabel = NSTextField(labelWithString: "Terminal")
@@ -275,8 +269,6 @@ class TTYDTerminalPanel: NSViewController {
             headerBackground.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
             headerBackground.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
             
-            trafficLightContainer.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            trafficLightContainer.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 12),
             
             titleLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
             titleLabel.centerXAnchor.constraint(equalTo: headerView.centerXAnchor),
@@ -301,27 +293,23 @@ class TTYDTerminalPanel: NSViewController {
         ])
     }
     
-    private func createTrafficLight(color: NSColor) -> NSView {
-        let light = NSView()
-        light.translatesAutoresizingMaskIntoConstraints = false
-        light.wantsLayer = true
-        light.layer?.backgroundColor = color.cgColor
-        light.layer?.cornerRadius = 6
-        light.widthAnchor.constraint(equalToConstant: 12).isActive = true
-        light.heightAnchor.constraint(equalToConstant: 12).isActive = true
-        return light
+    private func setupTabBar() {
+        tabBarView = TerminalTabBarView()
+        tabBarView.translatesAutoresizingMaskIntoConstraints = false
+        tabBarView.terminalPanel = self
+        view.addSubview(tabBarView)
+        
+        NSLayoutConstraint.activate([
+            tabBarView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 4),
+            tabBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            tabBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            tabBarView.heightAnchor.constraint(equalToConstant: 24)
+        ])
     }
     
-    private func setupWebView() {
-        let config = WKWebViewConfiguration()
-        
-        // Enable debugging in development
-        #if DEBUG
-        config.preferences.setValue(true, forKey: "developerExtrasEnabled")
-        #endif
-        
-        // Create a container for the terminal with modern styling
-        let terminalContainer = NSView()
+    private func setupTerminalContainer() {
+        // Create container for terminal content
+        terminalContainer = NSView()
         terminalContainer.translatesAutoresizingMaskIntoConstraints = false
         terminalContainer.wantsLayer = true
         terminalContainer.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.03).cgColor
@@ -330,7 +318,53 @@ class TTYDTerminalPanel: NSViewController {
         terminalContainer.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.1).cgColor
         view.addSubview(terminalContainer)
         
-        webView = WKWebView(frame: .zero, configuration: config)
+        // Create container for web views
+        webViewsContainer = NSView()
+        webViewsContainer.translatesAutoresizingMaskIntoConstraints = false
+        terminalContainer.addSubview(webViewsContainer)
+        
+        NSLayoutConstraint.activate([
+            terminalContainer.topAnchor.constraint(equalTo: tabBarView.bottomAnchor, constant: 4),
+            terminalContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            terminalContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            terminalContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -24),
+            
+            webViewsContainer.topAnchor.constraint(equalTo: terminalContainer.topAnchor, constant: 8),
+            webViewsContainer.leadingAnchor.constraint(equalTo: terminalContainer.leadingAnchor, constant: 8),
+            webViewsContainer.trailingAnchor.constraint(equalTo: terminalContainer.trailingAnchor, constant: -8),
+            webViewsContainer.bottomAnchor.constraint(equalTo: terminalContainer.bottomAnchor, constant: -8)
+        ])
+        
+        // Setup drag overlay for the container
+        setupDragOverlay()
+    }
+    
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(terminalTabSelected(_:)),
+            name: .terminalTabSelected,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(allTerminalTabsClosed(_:)),
+            name: .allTerminalTabsClosed,
+            object: nil
+        )
+    }
+    
+    
+    private func createWebViewForTerminalTab(_ terminalTab: TerminalTab) -> WKWebView {
+        let config = WKWebViewConfiguration()
+        
+        // Enable debugging in development
+        #if DEBUG
+        config.preferences.setValue(true, forKey: "developerExtrasEnabled")
+        #endif
+        
+        let webView = WKWebView(frame: .zero, configuration: config)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         webView.wantsLayer = true
@@ -341,67 +375,100 @@ class TTYDTerminalPanel: NSViewController {
         webView.setValue(false, forKey: "allowsLinkPreview")
         webView.setValue(false, forKey: "drawsBackground")
         
-        // Add subtle inner shadow for depth
-        let innerShadow = CALayer()
-        innerShadow.frame = webView.bounds
-        innerShadow.shadowColor = NSColor.black.cgColor
-        innerShadow.shadowOffset = CGSize(width: 0, height: 2)
-        innerShadow.shadowOpacity = 0.1
-        innerShadow.shadowRadius = 4
-        innerShadow.cornerRadius = 8
+        // Initially hidden
+        webView.isHidden = true
         
-        terminalContainer.addSubview(webView)
+        // Add to container
+        webViewsContainer.addSubview(webView)
         
+        // Full size constraints
         NSLayoutConstraint.activate([
-            terminalContainer.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 16),
-            terminalContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            terminalContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            terminalContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -24),
-            
-            webView.topAnchor.constraint(equalTo: terminalContainer.topAnchor, constant: 8),
-            webView.leadingAnchor.constraint(equalTo: terminalContainer.leadingAnchor, constant: 8),
-            webView.trailingAnchor.constraint(equalTo: terminalContainer.trailingAnchor, constant: -8),
-            webView.bottomAnchor.constraint(equalTo: terminalContainer.bottomAnchor, constant: -8)
+            webView.topAnchor.constraint(equalTo: webViewsContainer.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: webViewsContainer.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: webViewsContainer.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: webViewsContainer.bottomAnchor)
         ])
         
-        // Add a transparent overlay for drag and drop
-        setupDragOverlay()
+        return webView
     }
     
     private func setupDragOverlay() {
-        // Create a transparent overlay view that sits on top of webView
+        // Create a transparent overlay view that sits on top of webViewsContainer
         let overlayView = DragOverlayView()
         overlayView.translatesAutoresizingMaskIntoConstraints = false
         overlayView.terminalPanel = self
         
         view.addSubview(overlayView)
         
-        // Position overlay exactly over the webView
+        // Position overlay exactly over the webViewsContainer
         NSLayoutConstraint.activate([
-            overlayView.topAnchor.constraint(equalTo: webView.topAnchor),
-            overlayView.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
-            overlayView.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
-            overlayView.bottomAnchor.constraint(equalTo: webView.bottomAnchor)
+            overlayView.topAnchor.constraint(equalTo: webViewsContainer.topAnchor),
+            overlayView.leadingAnchor.constraint(equalTo: webViewsContainer.leadingAnchor),
+            overlayView.trailingAnchor.constraint(equalTo: webViewsContainer.trailingAnchor),
+            overlayView.bottomAnchor.constraint(equalTo: webViewsContainer.bottomAnchor)
         ])
         
         // Store reference to overlay
         self.dragOverlay = overlayView
     }
     
-    private func startTTYDProcess() {
-        // Find available port starting from 7681
-        ttydPort = findAvailablePort(startingFrom: 7681)
-        
-        ttydProcess = Process()
-        guard let process = ttydProcess else {
-            print("❌ Failed to create ttyd process")
-            return
+    // MARK: - Terminal Tab Management
+    
+    func switchToTerminalTab(_ terminalTab: TerminalTab) {
+        // Hide current terminal if any
+        if let currentTab = currentTerminalTab,
+           let currentWebView = terminalWebViews[currentTab.id] {
+            currentWebView.isHidden = true
         }
+        
+        // Get or create web view for this terminal tab
+        let webView: WKWebView
+        if let existingWebView = terminalWebViews[terminalTab.id] {
+            webView = existingWebView
+        } else {
+            // Create new web view and start ttyd process
+            webView = createWebViewForTerminalTab(terminalTab)
+            terminalWebViews[terminalTab.id] = webView
+            startTTYDProcessForTab(terminalTab)
+        }
+        
+        // Show the web view for this tab
+        webView.isHidden = false
+        currentTerminalTab = terminalTab
+        
+        // Update title in header
+        titleLabel.stringValue = "Terminal"
+        
+        // Focus the web view
+        DispatchQueue.main.async {
+            self.view.window?.makeFirstResponder(webView)
+        }
+        
+        print("🎯 Switched to terminal tab: \(terminalTab.title)")
+    }
+    
+    @objc private func terminalTabSelected(_ notification: Notification) {
+        guard let terminalTab = notification.object as? TerminalTab else { return }
+        switchToTerminalTab(terminalTab)
+    }
+    
+    @objc private func allTerminalTabsClosed(_ notification: Notification) {
+        // Close the terminal panel when all tabs are closed
+        closePanel()
+    }
+    
+    private func startTTYDProcessForTab(_ terminalTab: TerminalTab) {
+        // Find available port starting from 7681
+        let port = findAvailablePort(startingFrom: 7681)
+        terminalPorts[terminalTab.id] = port
+        
+        let process = Process()
+        terminalProcesses[terminalTab.id] = process
         
         // Configure ttyd process
         process.executableURL = URL(fileURLWithPath: "/opt/homebrew/bin/ttyd")
         process.arguments = [
-            "--port", String(ttydPort),
+            "--port", String(port),
             "--interface", "127.0.0.1",  // Only bind to localhost for security
             "--writable",                // Allow input to terminal
             "--once",                   // Exit after one session (we'll restart as needed)
@@ -410,7 +477,7 @@ class TTYDTerminalPanel: NSViewController {
         
         // Set up environment
         var environment = ProcessInfo.processInfo.environment
-        environment["HOME"] = NSHomeDirectory()
+        environment["HOME"] = terminalTab.workingDirectory
         environment["USER"] = NSUserName()
         environment["TERM"] = "xterm-256color"
         environment["SHELL"] = "/bin/zsh"
@@ -445,23 +512,23 @@ class TTYDTerminalPanel: NSViewController {
         // Handle process termination
         process.terminationHandler = { [weak self] _ in
             DispatchQueue.main.async {
-                self?.isttydRunning = false
-                print("⚠️ ttyd process terminated")
+                self?.terminalProcesses.removeValue(forKey: terminalTab.id)
+                self?.terminalPorts.removeValue(forKey: terminalTab.id)
+                print("⚠️ ttyd process terminated for tab: \(terminalTab.title)")
             }
         }
         
         // Start ttyd
         do {
             try process.run()
-            isttydRunning = true
-            print("✅ ttyd started on port \(ttydPort)")
+            print("✅ ttyd started on port \(port) for tab: \(terminalTab.title)")
             
             // Wait a moment for ttyd to start, then load the web page
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                self?.loadTerminalURL()
+                self?.loadTerminalURLForTab(terminalTab)
             }
         } catch {
-            print("❌ Failed to start ttyd: \(error)")
+            print("❌ Failed to start ttyd for tab \(terminalTab.title): \(error)")
         }
     }
     
@@ -493,14 +560,20 @@ class TTYDTerminalPanel: NSViewController {
         return result == 0
     }
     
-    private func loadTerminalURL() {
-        let url = URL(string: "http://127.0.0.1:\(ttydPort)")!
+    private func loadTerminalURLForTab(_ terminalTab: TerminalTab) {
+        guard let port = terminalPorts[terminalTab.id],
+              let webView = terminalWebViews[terminalTab.id] else {
+            print("❌ No port or webView found for terminal tab: \(terminalTab.title)")
+            return
+        }
+        
+        let url = URL(string: "http://127.0.0.1:\(port)")!
         let request = URLRequest(url: url)
         webView.load(request)
-        print("✅ Loading ttyd terminal at \(url)")
+        print("✅ Loading ttyd terminal at \(url) for tab: \(terminalTab.title)")
     }
     
-    @objc private func closePanel() {
+    @objc func closePanel() {
         // Don't terminate ttyd process when just closing panel
         // Keep it running so terminal state is preserved
         
@@ -508,12 +581,15 @@ class TTYDTerminalPanel: NSViewController {
         onClose?()
     }
     
-    // Method to actually terminate the process when needed
+    // Method to actually terminate all processes when needed
     func terminateProcess() {
-        ttydProcess?.terminate()
-        ttydProcess = nil
-        isttydRunning = false
-        print("🛑 ttyd process terminated")
+        for (tabId, process) in terminalProcesses {
+            process.terminate()
+            print("🛑 ttyd process terminated for tab: \(tabId)")
+        }
+        terminalProcesses.removeAll()
+        terminalPorts.removeAll()
+        terminalWebViews.removeAll()
     }
     
     override func loadView() {
@@ -564,18 +640,24 @@ class TTYDTerminalPanel: NSViewController {
     }
     
     private func sendTextToTerminal(_ text: String) {
+        guard let currentTab = currentTerminalTab,
+              let webView = terminalWebViews[currentTab.id] else {
+            print("❌ No active terminal tab to send text to")
+            return
+        }
+        
         print("🎯 Attempting to send text to terminal: '\(text)'")
         
         // Strategy 1: Try direct JavaScript injection to ttyd terminal
-        sendViaJavaScript(text) { success in
+        sendViaJavaScript(text, webView: webView) { success in
             if !success {
                 print("📋 JavaScript failed, trying clipboard method...")
-                self.sendViaClipboard(text)
+                self.sendViaClipboard(text, webView: webView)
             }
         }
     }
     
-    private func sendViaJavaScript(_ text: String, completion: @escaping (Bool) -> Void) {
+    private func sendViaJavaScript(_ text: String, webView: WKWebView, completion: @escaping (Bool) -> Void) {
         let escapedText = text.replacingOccurrences(of: "'", with: "\\'")
                              .replacingOccurrences(of: "\\", with: "\\\\")
                              .replacingOccurrences(of: "\n", with: "\\n")
@@ -631,7 +713,7 @@ class TTYDTerminalPanel: NSViewController {
         }
     }
     
-    private func sendViaClipboard(_ text: String) {
+    private func sendViaClipboard(_ text: String, webView: WKWebView) {
         print("📋 Using clipboard method as fallback for text: '\(text)'")
         
         // Store current clipboard content
@@ -707,7 +789,9 @@ extension TTYDTerminalPanel: WKNavigationDelegate {
         
         // Retry loading after a short delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.loadTerminalURL()
+            if let currentTab = self?.currentTerminalTab {
+                self?.loadTerminalURLForTab(currentTab)
+            }
         }
     }
     
@@ -716,7 +800,9 @@ extension TTYDTerminalPanel: WKNavigationDelegate {
         
         // Retry loading after a short delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.loadTerminalURL()
+            if let currentTab = self?.currentTerminalTab {
+                self?.loadTerminalURLForTab(currentTab)
+            }
         }
     }
 }

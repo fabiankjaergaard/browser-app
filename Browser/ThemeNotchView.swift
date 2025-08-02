@@ -30,7 +30,7 @@ enum AppTheme: String, CaseIterable {
     }
 }
 
-class ThemeNotchView: NSView {
+class ThemeNotchView: NSView, ThemeNotchViewDelegate, NSTabViewDelegate {
     
     weak var delegate: ThemeNotchViewDelegate?
     weak var contentViewController: ContentViewController?
@@ -44,6 +44,12 @@ class ThemeNotchView: NSView {
     private var currentThemeLabel: NSTextField!
     private var statusLabel: NSTextField!
     
+    // Arc-style theme components
+    private var tabView: NSTabView!
+    private var colorPaletteView: ColorPaletteView!
+    private var themeControlsView: ThemeControlsView!
+    private var themePresetView: ThemePresetView!
+    
     // State
     private var isDropdownVisible = false
     private var mouseExitTimer: Timer?
@@ -52,8 +58,8 @@ class ThemeNotchView: NSView {
     private var currentTheme: AppTheme = .auto
     
     // Constants
-    private let dropdownWidth: CGFloat = 200
-    private let dropdownHeight: CGFloat = 140
+    private let dropdownWidth: CGFloat = 320
+    private let dropdownHeight: CGFloat = 420
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -77,6 +83,9 @@ class ThemeNotchView: NSView {
         setupDropdownWindow()
         setupLayout()
         setupTrackingArea()
+        
+        // Connect to theme manager
+        ThemeManager.shared.themeDelegate = self
     }
     
     private func setupThemeIcon() {
@@ -140,6 +149,68 @@ class ThemeNotchView: NSView {
         
         themeContainer.addSubview(visualEffect)
         
+        // Setup tab view for different theme panels
+        setupTabView()
+        themeContainer.addSubview(tabView)
+        
+        NSLayoutConstraint.activate([
+            // Visual effect background
+            visualEffect.topAnchor.constraint(equalTo: themeContainer.topAnchor),
+            visualEffect.leadingAnchor.constraint(equalTo: themeContainer.leadingAnchor),
+            visualEffect.trailingAnchor.constraint(equalTo: themeContainer.trailingAnchor),
+            visualEffect.bottomAnchor.constraint(equalTo: themeContainer.bottomAnchor),
+            
+            // Tab view
+            tabView.topAnchor.constraint(equalTo: themeContainer.topAnchor, constant: 8),
+            tabView.leadingAnchor.constraint(equalTo: themeContainer.leadingAnchor, constant: 8),
+            tabView.trailingAnchor.constraint(equalTo: themeContainer.trailingAnchor, constant: -8),
+            tabView.bottomAnchor.constraint(equalTo: themeContainer.bottomAnchor, constant: -8)
+        ])
+    }
+    
+    private func setupTabView() {
+        tabView = NSTabView()
+        tabView.translatesAutoresizingMaskIntoConstraints = false
+        tabView.tabViewType = .topTabsBezelBorder
+        
+        // Base themes tab
+        let baseThemeTab = NSTabViewItem(identifier: "base")
+        baseThemeTab.label = "Themes"
+        
+        let baseThemeView = createBaseThemeView()
+        baseThemeTab.view = baseThemeView
+        tabView.addTabViewItem(baseThemeTab)
+        
+        // Presets tab - temporarily disabled
+        /*
+        let presetsTab = NSTabViewItem(identifier: "presets")
+        presetsTab.label = "Presets"
+        
+        let presetsView = createPresetsView()
+        presetsTab.view = presetsView
+        tabView.addTabViewItem(presetsTab)
+        */
+        
+        // Custom themes tab - temporarily disabled
+        /*
+        let customThemeTab = NSTabViewItem(identifier: "custom")
+        customThemeTab.label = "Custom"
+        
+        let customThemeView = createCustomThemeView()
+        customThemeTab.view = customThemeView
+        tabView.addTabViewItem(customThemeTab)
+        */
+        
+        // Select first tab
+        tabView.selectTabViewItem(at: 0)
+        
+        // Set delegate to handle tab changes
+        tabView.delegate = self
+    }
+    
+    private func createBaseThemeView() -> NSView {
+        let container = NSView()
+        
         // Header
         let headerLabel = NSTextField(labelWithString: "Appearance")
         headerLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -173,39 +244,101 @@ class ThemeNotchView: NSView {
         statusLabel.textColor = NSColor.tertiaryLabelColor
         statusLabel.alignment = .center
         
-        // Add all subviews
-        themeContainer.addSubview(headerLabel)
-        themeContainer.addSubview(currentThemeLabel)
-        themeContainer.addSubview(themeSegmentedControl)
-        themeContainer.addSubview(statusLabel)
+        container.addSubview(headerLabel)
+        container.addSubview(currentThemeLabel)
+        container.addSubview(themeSegmentedControl)
+        container.addSubview(statusLabel)
         
         NSLayoutConstraint.activate([
-            // Visual effect background
-            visualEffect.topAnchor.constraint(equalTo: themeContainer.topAnchor),
-            visualEffect.leadingAnchor.constraint(equalTo: themeContainer.leadingAnchor),
-            visualEffect.trailingAnchor.constraint(equalTo: themeContainer.trailingAnchor),
-            visualEffect.bottomAnchor.constraint(equalTo: themeContainer.bottomAnchor),
+            headerLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            headerLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
             
-            // Header
-            headerLabel.topAnchor.constraint(equalTo: themeContainer.topAnchor, constant: 12),
-            headerLabel.centerXAnchor.constraint(equalTo: themeContainer.centerXAnchor),
-            
-            // Current theme
             currentThemeLabel.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 8),
-            currentThemeLabel.centerXAnchor.constraint(equalTo: themeContainer.centerXAnchor),
+            currentThemeLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
             
-            // Theme selector
             themeSegmentedControl.topAnchor.constraint(equalTo: currentThemeLabel.bottomAnchor, constant: 12),
-            themeSegmentedControl.leadingAnchor.constraint(equalTo: themeContainer.leadingAnchor, constant: 16),
-            themeSegmentedControl.trailingAnchor.constraint(equalTo: themeContainer.trailingAnchor, constant: -16),
+            themeSegmentedControl.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            themeSegmentedControl.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
             
-            // Status
             statusLabel.topAnchor.constraint(equalTo: themeSegmentedControl.bottomAnchor, constant: 8),
-            statusLabel.centerXAnchor.constraint(equalTo: themeContainer.centerXAnchor),
-            statusLabel.bottomAnchor.constraint(lessThanOrEqualTo: themeContainer.bottomAnchor, constant: -12)
+            statusLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            statusLabel.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -16)
         ])
         
-        updateThemeDisplay()
+        return container
+    }
+    
+    private func createPresetsView() -> NSView {
+        let container = NSView()
+        
+        // Header
+        let headerLabel = NSTextField(labelWithString: "Theme Presets")
+        headerLabel.translatesAutoresizingMaskIntoConstraints = false
+        headerLabel.font = NSFont.systemFont(ofSize: 13, weight: .semibold)
+        headerLabel.textColor = NSColor.labelColor
+        headerLabel.alignment = .center
+        
+        // Theme presets
+        themePresetView = ThemePresetView()
+        themePresetView.translatesAutoresizingMaskIntoConstraints = false
+        themePresetView.delegate = self
+        
+        container.addSubview(headerLabel)
+        container.addSubview(themePresetView)
+        
+        NSLayoutConstraint.activate([
+            headerLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            headerLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            
+            themePresetView.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 16),
+            themePresetView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 8),
+            themePresetView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
+            themePresetView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
+        ])
+        
+        return container
+    }
+    
+    private func createCustomThemeView() -> NSView {
+        let container = NSView()
+        
+        // Header
+        let headerLabel = NSTextField(labelWithString: "Custom Theme")
+        headerLabel.translatesAutoresizingMaskIntoConstraints = false
+        headerLabel.font = NSFont.systemFont(ofSize: 13, weight: .semibold)
+        headerLabel.textColor = NSColor.labelColor
+        headerLabel.alignment = .center
+        
+        // Color palette
+        colorPaletteView = ColorPaletteView()
+        colorPaletteView.translatesAutoresizingMaskIntoConstraints = false
+        colorPaletteView.delegate = self
+        
+        // Theme controls
+        themeControlsView = ThemeControlsView()
+        themeControlsView.translatesAutoresizingMaskIntoConstraints = false
+        themeControlsView.delegate = self
+        
+        container.addSubview(headerLabel)
+        container.addSubview(colorPaletteView)
+        container.addSubview(themeControlsView)
+        
+        NSLayoutConstraint.activate([
+            headerLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            headerLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            
+            colorPaletteView.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 16),
+            colorPaletteView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            colorPaletteView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            colorPaletteView.heightAnchor.constraint(equalToConstant: 120),
+            
+            themeControlsView.topAnchor.constraint(equalTo: colorPaletteView.bottomAnchor, constant: 8),
+            themeControlsView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            themeControlsView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            themeControlsView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        
+        return container
     }
     
     private func setupLayout() {
@@ -417,6 +550,14 @@ class ThemeNotchView: NSView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let self = self else { return }
             self.dropdownWindow.makeKey()
+            
+            // Sync controls with current theme when dropdown opens
+            if let selectedTab = self.tabView.selectedTabViewItem,
+               let identifier = selectedTab.identifier as? String,
+               identifier == "custom" {
+                self.syncControlsWithCurrentTheme()
+            }
+            
             print("🎨 Made theme panel key window")
         }
         
@@ -580,9 +721,161 @@ class ThemeNotchView: NSView {
         delegate?.themeNotchDidToggleTheme(isDarkMode)
     }
     
+    // MARK: - ThemeNotchViewDelegate Implementation
+    func themeNotchDidToggleTheme(_ isDarkMode: Bool) {
+        // Update icon based on theme change
+        updateThemeIcon()
+        
+        // Notify parent delegate if needed
+        delegate?.themeNotchDidToggleTheme(isDarkMode)
+    }
+    
     deinit {
         mouseExitTimer?.invalidate()
         stopGlobalMouseMonitoring()
         stopGlobalClickMonitoring()
+    }
+}
+
+// MARK: - ColorPaletteViewDelegate
+extension ThemeNotchView: ColorPaletteViewDelegate {
+    func colorPaletteView(_ paletteView: ColorPaletteView, didSelectColor color: NSColor) {
+        guard let controlsView = themeControlsView else { return }
+        
+        let values = controlsView.getValues()
+        
+        // Create or update the custom theme
+        if ThemeManager.shared.isUsingCustomTheme {
+            // Update existing custom theme with new color
+            let customTheme = CustomTheme(
+                name: "Custom Theme",
+                accentColor: color,
+                brightness: values.brightness,
+                contrast: values.contrast,
+                saturation: values.saturation
+            )
+            ThemeManager.shared.applyTheme(customTheme)
+        } else {
+            // Create new custom theme
+            let customTheme = ThemeManager.shared.createCustomTheme(
+                name: "Custom Theme",
+                baseColor: color,
+                brightness: values.brightness,
+                contrast: values.contrast,
+                saturation: values.saturation
+            )
+            ThemeManager.shared.applyTheme(customTheme)
+        }
+        
+        print("🎨 Applied custom theme with color: \(color)")
+    }
+}
+
+// MARK: - ThemeControlsViewDelegate
+extension ThemeNotchView: ThemeControlsViewDelegate {
+    func themeControlsView(_ controlsView: ThemeControlsView, didUpdateBrightness brightness: Float) {
+        ensureCustomThemeExists()
+        ThemeManager.shared.updateCurrentCustomTheme(brightness: brightness)
+        print("🎨 Updated brightness to: \(brightness)")
+    }
+    
+    func themeControlsView(_ controlsView: ThemeControlsView, didUpdateContrast contrast: Float) {
+        ensureCustomThemeExists()
+        ThemeManager.shared.updateCurrentCustomTheme(contrast: contrast)
+        print("🎨 Updated contrast to: \(contrast)")
+    }
+    
+    func themeControlsView(_ controlsView: ThemeControlsView, didUpdateSaturation saturation: Float) {
+        ensureCustomThemeExists()
+        ThemeManager.shared.updateCurrentCustomTheme(saturation: saturation)
+        print("🎨 Updated saturation to: \(saturation)")
+    }
+    
+    private func ensureCustomThemeExists() {
+        // If no custom theme is active, create one with default color (blue)
+        if !ThemeManager.shared.isUsingCustomTheme {
+            let defaultColor = ArcColorPalette.systemBlue.color
+            let values = themeControlsView.getValues()
+            
+            let customTheme = ThemeManager.shared.createCustomTheme(
+                name: "Custom Theme",
+                baseColor: defaultColor,
+                brightness: values.brightness,
+                contrast: values.contrast,
+                saturation: values.saturation
+            )
+            ThemeManager.shared.applyTheme(customTheme)
+            
+            // Update the color palette to show the selected color
+            colorPaletteView?.selectColor(defaultColor)
+            
+            print("🎨 Created new custom theme with default blue color")
+        }
+    }
+    
+    private func syncControlsWithCurrentTheme() {
+        guard let currentTheme = ThemeManager.shared.currentCustomTheme else {
+            // Reset to default values if no custom theme
+            themeControlsView?.setBrightness(0.5)
+            themeControlsView?.setContrast(0.5)
+            themeControlsView?.setSaturation(0.5)
+            colorPaletteView?.selectColor(ArcColorPalette.systemBlue.color)
+            return
+        }
+        
+        // Sync controls with current custom theme values
+        themeControlsView?.setBrightness(currentTheme.brightness)
+        themeControlsView?.setContrast(currentTheme.contrast)
+        themeControlsView?.setSaturation(currentTheme.saturation)
+        colorPaletteView?.selectColor(currentTheme.accentColor.nsColor)
+        
+        print("🎨 Synced controls with current theme: brightness=\(currentTheme.brightness), contrast=\(currentTheme.contrast), saturation=\(currentTheme.saturation)")
+    }
+}
+
+// MARK: - NSTabViewDelegate
+extension ThemeNotchView {
+    func tabView(_ tabView: NSTabView, didSelectTabViewItem tabViewItem: NSTabViewItem?) {
+        guard let identifier = tabViewItem?.identifier as? String else { return }
+        
+        if identifier == "custom" {
+            // User switched to custom theme tab - sync controls with current theme
+            syncControlsWithCurrentTheme()
+            print("🎨 Switched to custom theme tab")
+        } else if identifier == "presets" {
+            print("🎨 Switched to presets tab")
+        }
+    }
+}
+
+// MARK: - ThemePresetViewDelegate
+extension ThemeNotchView: ThemePresetViewDelegate {
+    func themePresetView(_ presetView: ThemePresetView, didSelectPreset preset: ThemePreset) {
+        // Create custom theme from preset
+        let customTheme = CustomTheme(
+            name: preset.name,
+            accentColor: preset.accentColor,
+            brightness: preset.brightness,
+            contrast: preset.contrast,
+            saturation: preset.saturation
+        )
+        
+        // Apply the preset theme
+        ThemeManager.shared.applyTheme(customTheme)
+        
+        // Force update the UI by notifying all relevant components
+        NotificationCenter.default.post(
+            name: .themeDidChange,
+            object: self,
+            userInfo: [
+                "preset": preset,
+                "accentColor": preset.accentColor,
+                "brightness": preset.brightness,
+                "contrast": preset.contrast,
+                "saturation": preset.saturation
+            ]
+        )
+        
+        print("🎨 Applied preset theme: \(preset.name) with accent: \(preset.accentColor)")
     }
 }

@@ -28,6 +28,7 @@ class ContentViewController: NSViewController {
         
         setupView()
         setupDragBar()
+        // setupThemeNotifications() // Temporarily disabled
         setupMediaNotch()
         setupNotesNotch()
         setupTodoNotch()
@@ -463,7 +464,7 @@ class ContentViewController: NSViewController {
     func updateNotchVisibility() {
         let settings = NotchSettings.shared
         
-        // Simple visibility control without repositioning
+        // Update visibility
         mediaNotchView.isHidden = !settings.mediaNotchVisible
         notesNotchView.isHidden = !settings.notesNotchVisible
         todoNotchView.isHidden = !settings.todoNotchVisible
@@ -472,7 +473,46 @@ class ContentViewController: NSViewController {
         calendarNotchView.isHidden = !settings.calendarNotchVisible
         themeNotchView.isHidden = !settings.themeNotchVisible
         
-        print("⚙️ Updated notch visibility based on settings")
+        // Reposition all notches to remove gaps
+        repositionNotches()
+        
+        print("⚙️ Updated notch visibility and repositioned notches")
+    }
+    
+    private func repositionNotches() {
+        // Remove all existing trailing constraints for notches
+        dragBar.constraints.filter { constraint in
+            return (constraint.firstItem === settingsNotchView || 
+                   constraint.firstItem === themeNotchView ||
+                   constraint.firstItem === calendarNotchView ||
+                   constraint.firstItem === weatherNotchView ||
+                   constraint.firstItem === timerNotchView ||
+                   constraint.firstItem === todoNotchView ||
+                   constraint.firstItem === notesNotchView ||
+                   constraint.firstItem === mediaNotchView) &&
+                   constraint.firstAttribute == .trailing
+        }.forEach { dragBar.removeConstraint($0) }
+        
+        // Create array of visible notches in right-to-left order
+        var visibleNotches: [NSView] = []
+        
+        if !settingsNotchView.isHidden { visibleNotches.append(settingsNotchView) }
+        if !themeNotchView.isHidden { visibleNotches.append(themeNotchView) }
+        if !calendarNotchView.isHidden { visibleNotches.append(calendarNotchView) }
+        if !weatherNotchView.isHidden { visibleNotches.append(weatherNotchView) }
+        if !timerNotchView.isHidden { visibleNotches.append(timerNotchView) }
+        if !todoNotchView.isHidden { visibleNotches.append(todoNotchView) }
+        if !notesNotchView.isHidden { visibleNotches.append(notesNotchView) }
+        if !mediaNotchView.isHidden { visibleNotches.append(mediaNotchView) }
+        
+        // Position notches from right edge with 40px spacing between them
+        let spacing: CGFloat = 40
+        var currentOffset: CGFloat = -40 // Start 40px from right edge
+        
+        for notch in visibleNotches {
+            notch.trailingAnchor.constraint(equalTo: dragBar.trailingAnchor, constant: currentOffset).isActive = true
+            currentOffset -= spacing // Move further left for next notch
+        }
     }
     
     
@@ -693,9 +733,20 @@ extension ContentViewController: QuickSearchDelegate {
             showBlankStartPage()
         }
     }
+    
+    // MARK: - Theme Management
+    // Temporarily disabled to fix build issues
+    /*
+    private func setupThemeNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(themeDidChange(_:)),
+            name: .themeDidChange,
+            object: nil
+        )
+    }
+    */
 }
-
-
 
 // MARK: - MediaNotchViewDelegate
 extension ContentViewController: MediaNotchViewDelegate {

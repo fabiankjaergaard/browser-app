@@ -62,12 +62,16 @@ class CalendarNotchView: NSView {
     private var dropdownWindow: KeyablePanel!
     private var calendarContainer: NSView!
     private var headerView: NSView!
-    private var eventsScrollView: NSScrollView!
-    private var eventsStackView: NSStackView!
-    private var noEventsLabel: NSTextField!
+    private var monthYearLabel: NSTextField!
+    private var prevMonthButton: NSButton!
+    private var nextMonthButton: NSButton!
+    private var calendarGridView: NSView!
+    private var dayLabels: [NSTextField] = []
+    private var dayButtons: [NSButton] = []
     private var statusLabel: NSTextField!
     private var refreshButton: NSButton!
     private var addEventButton: NSButton!
+    private var currentDisplayDate = Date()
     
     // State
     private var isDropdownVisible = false
@@ -77,13 +81,27 @@ class CalendarNotchView: NSView {
     private var events: [CalendarEvent] = []
     private var isLoading = false
     
-    // EventKit
+    // Calendar providers
     private var eventStore: EKEventStore!
     private var hasCalendarAccess = false
+    private var calendarProvider: CalendarProvider = .apple
+    private var providerButton: NSButton!
+    
+    enum CalendarProvider: String, CaseIterable {
+        case apple = "Apple Calendar"
+        case google = "Google Calendar"
+        
+        var icon: String {
+            switch self {
+            case .apple: return "calendar"
+            case .google: return "globe"
+            }
+        }
+    }
     
     // Constants
-    private let dropdownWidth: CGFloat = 320
-    private let dropdownHeight: CGFloat = 300
+    private let dropdownWidth: CGFloat = 420
+    private let dropdownHeight: CGFloat = 380
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -170,11 +188,91 @@ class CalendarNotchView: NSView {
         
         calendarContainer.addSubview(visualEffect)
         
-        // Header
-        let headerLabel = NSTextField(labelWithString: "Today's Events")
-        headerLabel.translatesAutoresizingMaskIntoConstraints = false
-        headerLabel.font = NSFont.systemFont(ofSize: 13, weight: .semibold)
-        headerLabel.textColor = NSColor.labelColor
+        // Header with month/year navigation
+        setupCalendarHeader()
+        
+        // Calendar grid
+        setupCalendarGrid()
+        
+        // Status label
+        statusLabel = NSTextField(labelWithString: "")
+        statusLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel.font = NSFont.systemFont(ofSize: 9, weight: .regular)
+        statusLabel.textColor = NSColor.tertiaryLabelColor
+        statusLabel.alignment = .center
+        
+        // Add all subviews
+        calendarContainer.addSubview(headerView)
+        calendarContainer.addSubview(calendarGridView)
+        calendarContainer.addSubview(statusLabel)
+        
+        NSLayoutConstraint.activate([
+            // Visual effect background
+            visualEffect.topAnchor.constraint(equalTo: calendarContainer.topAnchor),
+            visualEffect.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor),
+            visualEffect.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor),
+            visualEffect.bottomAnchor.constraint(equalTo: calendarContainer.bottomAnchor),
+            
+            // Header
+            headerView.topAnchor.constraint(equalTo: calendarContainer.topAnchor, constant: 12),
+            headerView.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor, constant: 16),
+            headerView.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor, constant: -16),
+            headerView.heightAnchor.constraint(equalToConstant: 60),
+            
+            // Calendar grid
+            calendarGridView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 8),
+            calendarGridView.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor, constant: 16),
+            calendarGridView.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor, constant: -16),
+            calendarGridView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor, constant: -8),
+            
+            // Status label
+            statusLabel.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor, constant: 16),
+            statusLabel.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor, constant: -16),
+            statusLabel.bottomAnchor.constraint(equalTo: calendarContainer.bottomAnchor, constant: -8),
+            statusLabel.heightAnchor.constraint(equalToConstant: 12)
+        ])
+    }
+    
+    private func setupCalendarHeader() {
+        headerView = NSView()
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Month/Year label
+        monthYearLabel = NSTextField(labelWithString: formatMonthYear(currentDisplayDate))
+        monthYearLabel.translatesAutoresizingMaskIntoConstraints = false
+        monthYearLabel.font = NSFont.systemFont(ofSize: 16, weight: .semibold)
+        monthYearLabel.textColor = NSColor.labelColor
+        monthYearLabel.alignment = .center
+        
+        // Previous month button
+        prevMonthButton = NSButton()
+        prevMonthButton.translatesAutoresizingMaskIntoConstraints = false
+        prevMonthButton.image = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: "Previous month")
+        prevMonthButton.bezelStyle = .regularSquare
+        prevMonthButton.isBordered = false
+        prevMonthButton.target = self
+        prevMonthButton.action = #selector(previousMonth)
+        
+        // Next month button
+        nextMonthButton = NSButton()
+        nextMonthButton.translatesAutoresizingMaskIntoConstraints = false
+        nextMonthButton.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: "Next month")
+        nextMonthButton.bezelStyle = .regularSquare
+        nextMonthButton.isBordered = false
+        nextMonthButton.target = self
+        nextMonthButton.action = #selector(nextMonth)
+        
+        // Provider toggle button
+        providerButton = NSButton()
+        providerButton.translatesAutoresizingMaskIntoConstraints = false
+        providerButton.title = calendarProvider.rawValue
+        providerButton.font = NSFont.systemFont(ofSize: 9, weight: .medium)
+        providerButton.bezelStyle = .roundRect
+        providerButton.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.1).cgColor
+        providerButton.layer?.cornerRadius = 6
+        providerButton.target = self
+        providerButton.action = #selector(toggleProvider)
+        providerButton.toolTip = "Switch calendar provider"
         
         // Refresh button
         refreshButton = NSButton()
@@ -194,96 +292,255 @@ class CalendarNotchView: NSView {
         addEventButton.target = self
         addEventButton.action = #selector(addEventPressed)
         
-        // Events scroll view
-        setupEventsScrollView()
-        
-        // No events label
-        noEventsLabel = NSTextField(labelWithString: "No events today")
-        noEventsLabel.translatesAutoresizingMaskIntoConstraints = false
-        noEventsLabel.font = NSFont.systemFont(ofSize: 12, weight: .regular)
-        noEventsLabel.textColor = NSColor.secondaryLabelColor
-        noEventsLabel.alignment = .center
-        noEventsLabel.isHidden = true
-        
-        // Status label
-        statusLabel = NSTextField(labelWithString: "")
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.font = NSFont.systemFont(ofSize: 9, weight: .regular)
-        statusLabel.textColor = NSColor.tertiaryLabelColor
-        statusLabel.alignment = .center
-        
-        // Add all subviews
-        calendarContainer.addSubview(headerLabel)
-        calendarContainer.addSubview(refreshButton)
-        calendarContainer.addSubview(addEventButton)
-        calendarContainer.addSubview(eventsScrollView)
-        calendarContainer.addSubview(noEventsLabel)
-        calendarContainer.addSubview(statusLabel)
+        headerView.addSubview(monthYearLabel)
+        headerView.addSubview(prevMonthButton)
+        headerView.addSubview(nextMonthButton)
+        headerView.addSubview(providerButton)
+        headerView.addSubview(refreshButton)
+        headerView.addSubview(addEventButton)
         
         NSLayoutConstraint.activate([
-            // Visual effect background
-            visualEffect.topAnchor.constraint(equalTo: calendarContainer.topAnchor),
-            visualEffect.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor),
-            visualEffect.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor),
-            visualEffect.bottomAnchor.constraint(equalTo: calendarContainer.bottomAnchor),
+            // Month/Year label - centered
+            monthYearLabel.centerXAnchor.constraint(equalTo: headerView.centerXAnchor),
+            monthYearLabel.topAnchor.constraint(equalTo: headerView.topAnchor),
             
-            // Header
-            headerLabel.topAnchor.constraint(equalTo: calendarContainer.topAnchor, constant: 12),
-            headerLabel.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor, constant: 16),
+            // Previous month button
+            prevMonthButton.centerYAnchor.constraint(equalTo: monthYearLabel.centerYAnchor),
+            prevMonthButton.trailingAnchor.constraint(equalTo: monthYearLabel.leadingAnchor, constant: -8),
+            prevMonthButton.widthAnchor.constraint(equalToConstant: 20),
+            prevMonthButton.heightAnchor.constraint(equalToConstant: 20),
             
-            // Add event button
-            addEventButton.topAnchor.constraint(equalTo: calendarContainer.topAnchor, constant: 8),
+            // Next month button
+            nextMonthButton.centerYAnchor.constraint(equalTo: monthYearLabel.centerYAnchor),
+            nextMonthButton.leadingAnchor.constraint(equalTo: monthYearLabel.trailingAnchor, constant: 8),
+            nextMonthButton.widthAnchor.constraint(equalToConstant: 20),
+            nextMonthButton.heightAnchor.constraint(equalToConstant: 20),
+            
+            // Provider button - bottom left
+            providerButton.topAnchor.constraint(equalTo: monthYearLabel.bottomAnchor, constant: 8),
+            providerButton.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            providerButton.heightAnchor.constraint(equalToConstant: 18),
+            providerButton.widthAnchor.constraint(equalToConstant: 80),
+            
+            // Add event button - bottom right
+            addEventButton.topAnchor.constraint(equalTo: monthYearLabel.bottomAnchor, constant: 8),
             addEventButton.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -4),
-            addEventButton.widthAnchor.constraint(equalToConstant: 24),
-            addEventButton.heightAnchor.constraint(equalToConstant: 24),
+            addEventButton.widthAnchor.constraint(equalToConstant: 20),
+            addEventButton.heightAnchor.constraint(equalToConstant: 20),
             
-            // Refresh button
-            refreshButton.topAnchor.constraint(equalTo: calendarContainer.topAnchor, constant: 8),
-            refreshButton.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor, constant: -12),
-            refreshButton.widthAnchor.constraint(equalToConstant: 24),
-            refreshButton.heightAnchor.constraint(equalToConstant: 24),
-            
-            // Events scroll view
-            eventsScrollView.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 8),
-            eventsScrollView.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor, constant: 16),
-            eventsScrollView.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor, constant: -16),
-            eventsScrollView.bottomAnchor.constraint(equalTo: statusLabel.topAnchor, constant: -8),
-            
-            // No events label
-            noEventsLabel.centerXAnchor.constraint(equalTo: eventsScrollView.centerXAnchor),
-            noEventsLabel.centerYAnchor.constraint(equalTo: eventsScrollView.centerYAnchor),
-            
-            // Status label
-            statusLabel.leadingAnchor.constraint(equalTo: calendarContainer.leadingAnchor, constant: 16),
-            statusLabel.trailingAnchor.constraint(equalTo: calendarContainer.trailingAnchor, constant: -16),
-            statusLabel.bottomAnchor.constraint(equalTo: calendarContainer.bottomAnchor, constant: -8)
+            // Refresh button - bottom right
+            refreshButton.topAnchor.constraint(equalTo: monthYearLabel.bottomAnchor, constant: 8),
+            refreshButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
+            refreshButton.widthAnchor.constraint(equalToConstant: 20),
+            refreshButton.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
     
-    private func setupEventsScrollView() {
-        eventsScrollView = NSScrollView()
-        eventsScrollView.translatesAutoresizingMaskIntoConstraints = false
-        eventsScrollView.hasVerticalScroller = true
-        eventsScrollView.hasHorizontalScroller = false
-        eventsScrollView.autohidesScrollers = true
-        eventsScrollView.borderType = .noBorder
-        eventsScrollView.drawsBackground = false
+    private func setupCalendarGrid() {
+        calendarGridView = NSView()
+        calendarGridView.translatesAutoresizingMaskIntoConstraints = false
+        calendarGridView.wantsLayer = true
         
-        eventsStackView = NSStackView()
-        eventsStackView.translatesAutoresizingMaskIntoConstraints = false
-        eventsStackView.orientation = .vertical
-        eventsStackView.spacing = 6
-        eventsStackView.distribution = .fill
-        eventsStackView.alignment = .leading
+        // Create day labels (Mon, Tue, Wed, etc.)
+        let dayNames = ["M", "T", "W", "T", "F", "S", "S"]
+        for i in 0..<7 {
+            let dayLabel = NSTextField(labelWithString: dayNames[i])
+            dayLabel.translatesAutoresizingMaskIntoConstraints = false
+            dayLabel.font = NSFont.systemFont(ofSize: 10, weight: .medium)
+            dayLabel.textColor = NSColor.secondaryLabelColor
+            dayLabel.alignment = .center
+            dayLabels.append(dayLabel)
+            calendarGridView.addSubview(dayLabel)
+        }
         
-        eventsScrollView.documentView = eventsStackView
+        // Create day buttons (42 buttons for 6 rows × 7 days)
+        for i in 0..<42 {
+            let dayButton = NSButton()
+            dayButton.translatesAutoresizingMaskIntoConstraints = false
+            dayButton.title = ""
+            dayButton.font = NSFont.systemFont(ofSize: 11, weight: .regular)
+            dayButton.bezelStyle = .regularSquare
+            dayButton.isBordered = false
+            dayButton.target = self
+            dayButton.action = #selector(dayButtonPressed(_:))
+            dayButton.tag = i
+            dayButton.wantsLayer = true
+            dayButton.layer?.cornerRadius = 4
+            dayButtons.append(dayButton)
+            calendarGridView.addSubview(dayButton)
+        }
         
+        setupCalendarConstraints()
+        updateCalendarDisplay()
+    }
+    
+    private func setupCalendarConstraints() {
+        var constraints: [NSLayoutConstraint] = []
+        
+        let cellWidth: CGFloat = 50
+        let cellHeight: CGFloat = 36
+        
+        // Day labels constraints
+        for (index, dayLabel) in dayLabels.enumerated() {
+            constraints.append(contentsOf: [
+                dayLabel.topAnchor.constraint(equalTo: calendarGridView.topAnchor),
+                dayLabel.leadingAnchor.constraint(equalTo: calendarGridView.leadingAnchor, constant: CGFloat(index) * cellWidth),
+                dayLabel.widthAnchor.constraint(equalToConstant: cellWidth),
+                dayLabel.heightAnchor.constraint(equalToConstant: 20)
+            ])
+        }
+        
+        // Day buttons constraints
+        for (index, dayButton) in dayButtons.enumerated() {
+            let row = index / 7
+            let col = index % 7
+            
+            constraints.append(contentsOf: [
+                dayButton.topAnchor.constraint(equalTo: calendarGridView.topAnchor, constant: 24 + CGFloat(row) * cellHeight),
+                dayButton.leadingAnchor.constraint(equalTo: calendarGridView.leadingAnchor, constant: CGFloat(col) * cellWidth),
+                dayButton.widthAnchor.constraint(equalToConstant: cellWidth),
+                dayButton.heightAnchor.constraint(equalToConstant: cellHeight)
+            ])
+        }
+        
+        NSLayoutConstraint.activate(constraints)
+    }
+    
+    // MARK: - Calendar Logic
+    
+    @objc private func previousMonth() {
+        currentDisplayDate = Calendar.current.date(byAdding: .month, value: -1, to: currentDisplayDate) ?? currentDisplayDate
+        updateCalendarDisplay()
+        loadTodaysEvents()
+    }
+    
+    @objc private func nextMonth() {
+        currentDisplayDate = Calendar.current.date(byAdding: .month, value: 1, to: currentDisplayDate) ?? currentDisplayDate
+        updateCalendarDisplay()
+        loadTodaysEvents()
+    }
+    
+    @objc private func dayButtonPressed(_ sender: NSButton) {
+        let dayIndex = sender.tag
+        if let date = getDateForDayButton(dayIndex) {
+            // Highlight selected day
+            updateSelectedDay(dayIndex)
+            print("📅 Selected date: \(date)")
+        }
+    }
+    
+    private func updateCalendarDisplay() {
+        monthYearLabel.stringValue = formatMonthYear(currentDisplayDate)
+        
+        let calendar = Calendar.current
+        let firstOfMonth = calendar.dateInterval(of: .month, for: currentDisplayDate)?.start ?? currentDisplayDate
+        let weekdayOfFirst = calendar.component(.weekday, from: firstOfMonth)
+        let startOffset = (weekdayOfFirst + 5) % 7 // Adjust for Monday start
+        
+        let daysInMonth = calendar.range(of: .day, in: .month, for: currentDisplayDate)?.count ?? 30
+        let previousMonth = calendar.date(byAdding: .month, value: -1, to: currentDisplayDate) ?? currentDisplayDate
+        let daysInPreviousMonth = calendar.range(of: .day, in: .month, for: previousMonth)?.count ?? 30
+        
+        // Update day buttons
+        for (index, button) in dayButtons.enumerated() {
+            button.layer?.backgroundColor = NSColor.clear.cgColor
+            button.contentTintColor = NSColor.labelColor
+            
+            if index < startOffset {
+                // Previous month days
+                let day = daysInPreviousMonth - startOffset + index + 1
+                button.title = "\(day)"
+                button.contentTintColor = NSColor.tertiaryLabelColor
+            } else if index < startOffset + daysInMonth {
+                // Current month days
+                let day = index - startOffset + 1
+                button.title = "\(day)"
+                button.contentTintColor = NSColor.labelColor
+                
+                // Highlight today
+                if calendar.isDate(currentDisplayDate, equalTo: Date(), toGranularity: .month) {
+                    let today = calendar.component(.day, from: Date())
+                    if day == today {
+                        button.layer?.backgroundColor = NSColor.controlAccentColor.cgColor
+                        button.contentTintColor = NSColor.white
+                    }
+                }
+                
+                // Show events indicator
+                if hasEventsOnDay(day) {
+                    addEventIndicator(to: button)
+                }
+            } else {
+                // Next month days
+                let day = index - startOffset - daysInMonth + 1
+                button.title = "\(day)"
+                button.contentTintColor = NSColor.tertiaryLabelColor
+            }
+        }
+    }
+    
+    private func updateSelectedDay(_ dayIndex: Int) {
+        // Reset all day buttons
+        for button in dayButtons {
+            if button.layer?.backgroundColor != NSColor.controlAccentColor.cgColor {
+                button.layer?.backgroundColor = NSColor.clear.cgColor
+            }
+        }
+        
+        // Highlight selected day (unless it's today)
+        let selectedButton = dayButtons[dayIndex]
+        if selectedButton.layer?.backgroundColor != NSColor.controlAccentColor.cgColor {
+            selectedButton.layer?.backgroundColor = NSColor.secondarySystemFill.cgColor
+        }
+    }
+    
+    private func getDateForDayButton(_ dayIndex: Int) -> Date? {
+        let calendar = Calendar.current
+        let firstOfMonth = calendar.dateInterval(of: .month, for: currentDisplayDate)?.start ?? currentDisplayDate
+        let weekdayOfFirst = calendar.component(.weekday, from: firstOfMonth)
+        let startOffset = (weekdayOfFirst + 5) % 7
+        
+        if dayIndex >= startOffset {
+            let daysInMonth = calendar.range(of: .day, in: .month, for: currentDisplayDate)?.count ?? 30
+            if dayIndex < startOffset + daysInMonth {
+                let day = dayIndex - startOffset + 1
+                return calendar.date(byAdding: .day, value: day - 1, to: firstOfMonth)
+            }
+        }
+        return nil
+    }
+    
+    private func hasEventsOnDay(_ day: Int) -> Bool {
+        let calendar = Calendar.current
+        let firstOfMonth = calendar.dateInterval(of: .month, for: currentDisplayDate)?.start ?? currentDisplayDate
+        guard let dayDate = calendar.date(byAdding: .day, value: day - 1, to: firstOfMonth) else { return false }
+        
+        return events.contains { event in
+            calendar.isDate(event.startDate, inSameDayAs: dayDate)
+        }
+    }
+    
+    private func addEventIndicator(to button: NSButton) {
+        // Add small dot to indicate events
+        let indicator = NSView()
+        indicator.wantsLayer = true
+        indicator.layer?.backgroundColor = NSColor.systemOrange.cgColor
+        indicator.layer?.cornerRadius = 2
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        button.addSubview(indicator)
         NSLayoutConstraint.activate([
-            eventsStackView.topAnchor.constraint(equalTo: eventsScrollView.contentView.topAnchor),
-            eventsStackView.leadingAnchor.constraint(equalTo: eventsScrollView.contentView.leadingAnchor),
-            eventsStackView.trailingAnchor.constraint(equalTo: eventsScrollView.contentView.trailingAnchor),
-            eventsStackView.widthAnchor.constraint(equalTo: eventsScrollView.widthAnchor, constant: -16)
+            indicator.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -4),
+            indicator.topAnchor.constraint(equalTo: button.topAnchor, constant: 4),
+            indicator.widthAnchor.constraint(equalToConstant: 4),
+            indicator.heightAnchor.constraint(equalToConstant: 4)
         ])
+    }
+    
+    private func formatMonthYear(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: date)
     }
     
     private func setupEventStore() {
@@ -346,25 +603,55 @@ class CalendarNotchView: NSView {
         loadTodaysEvents()
     }
     
+    @objc private func toggleProvider() {
+        // Switch between Apple and Google Calendar
+        calendarProvider = calendarProvider == .apple ? .google : .apple
+        providerButton.title = calendarProvider.rawValue
+        
+        print("📅 Switched to \(calendarProvider.rawValue)")
+        
+        // Clear current events and reload
+        events = []
+        updateCalendarDisplay()
+        loadTodaysEvents()
+    }
+    
     @objc private func addEventPressed() {
         delegate?.calendarNotchDidRequestEventCreation()
         
-        // For now, open Calendar app
-        if let calendarApp = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
-            NSWorkspace.shared.open(calendarApp)
+        switch calendarProvider {
+        case .apple:
+            // Open Apple Calendar
+            if let calendarApp = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
+                NSWorkspace.shared.open(calendarApp)
+            }
+        case .google:
+            // Open Google Calendar in browser
+            if let googleCalendarURL = URL(string: "https://calendar.google.com/calendar/u/0/r/eventedit") {
+                NSWorkspace.shared.open(googleCalendarURL)
+            }
         }
     }
     
     private func loadTodaysEvents() {
         guard !isLoading else { return }
         
+        switch calendarProvider {
+        case .apple:
+            loadAppleCalendarEvents()
+        case .google:
+            loadGoogleCalendarEvents()
+        }
+    }
+    
+    private func loadAppleCalendarEvents() {
         switch EKEventStore.authorizationStatus(for: .event) {
         case .notDetermined:
             requestCalendarAccess()
             return
         case .denied, .restricted:
             events = []
-            updateEventsDisplay()
+            updateCalendarDisplay()
             updateStatus("Calendar access required")
             return
         case .authorized:
@@ -381,11 +668,11 @@ class CalendarNotchView: NSView {
         updateStatus("Loading events...")
         refreshButton.isEnabled = false
         
-        let today = Date()
-        let startOfDay = Calendar.current.startOfDay(for: today)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay)!
+        // Load events for the entire displayed month
+        let calendar = Calendar.current
+        let monthInterval = calendar.dateInterval(of: .month, for: currentDisplayDate)!
         
-        let predicate = eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
+        let predicate = eventStore.predicateForEvents(withStart: monthInterval.start, end: monthInterval.end, calendars: nil)
         let ekEvents = eventStore.events(matching: predicate)
         
         // Convert EKEvents to CalendarEvents
@@ -395,113 +682,69 @@ class CalendarNotchView: NSView {
                 startDate: ekEvent.startDate,
                 endDate: ekEvent.endDate,
                 isAllDay: ekEvent.isAllDay,
-                calendar: ekEvent.calendar?.title ?? "Unknown",
+                calendar: ekEvent.calendar?.title ?? "Apple Calendar",
                 location: ekEvent.location
             )
         }.sorted { $0.startDate < $1.startDate }
         
         isLoading = false
         refreshButton.isEnabled = true
-        updateEventsDisplay()
+        updateCalendarDisplay()
         updateCalendarIcon()
         delegate?.calendarNotchDidUpdateEvents(events)
         updateStatus("Updated \(formatCurrentTime())")
         
-        print("📅 Loaded \(events.count) events for today")
+        print("📅 Loaded \(events.count) Apple Calendar events for \(formatMonthYear(currentDisplayDate))")
     }
     
-    private func updateEventsDisplay() {
-        // Clear existing event views
-        eventsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+    private func loadGoogleCalendarEvents() {
+        isLoading = true
+        updateStatus("Loading Google Calendar...")
+        refreshButton.isEnabled = false
         
-        if events.isEmpty {
-            noEventsLabel.isHidden = false
-        } else {
-            noEventsLabel.isHidden = true
-            
-            for event in events {
-                let eventView = createEventView(for: event)
-                eventsStackView.addArrangedSubview(eventView)
-            }
+        // For now, create sample events distributed across the month
+        // In a real implementation, you would use Google Calendar API
+        let calendar = Calendar.current
+        let monthInterval = calendar.dateInterval(of: .month, for: currentDisplayDate)!
+        
+        var sampleEvents: [CalendarEvent] = []
+        
+        // Add a few sample events throughout the month
+        if let midMonth = calendar.date(byAdding: .day, value: 15, to: monthInterval.start) {
+            sampleEvents.append(CalendarEvent(
+                title: "Google Meet",
+                startDate: midMonth,
+                endDate: calendar.date(byAdding: .hour, value: 1, to: midMonth)!,
+                isAllDay: false,
+                calendar: "Google Calendar",
+                location: "Online"
+            ))
+        }
+        
+        if let laterInMonth = calendar.date(byAdding: .day, value: 22, to: monthInterval.start) {
+            sampleEvents.append(CalendarEvent(
+                title: "Project Deadline",
+                startDate: laterInMonth,
+                endDate: laterInMonth,
+                isAllDay: true,
+                calendar: "Google Calendar",
+                location: nil
+            ))
+        }
+        
+        events = sampleEvents
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.isLoading = false
+            self?.refreshButton.isEnabled = true
+            self?.updateCalendarDisplay()
+            self?.updateCalendarIcon()
+            self?.delegate?.calendarNotchDidUpdateEvents(self?.events ?? [])
+            self?.updateStatus("Google Calendar - click '+' to add events")
+            print("📅 Google Calendar mode - showing sample events")
         }
     }
     
-    private func createEventView(for event: CalendarEvent) -> NSView {
-        let container = NSView()
-        container.translatesAutoresizingMaskIntoConstraints = false
-        container.wantsLayer = true
-        container.layer?.backgroundColor = NSColor.controlBackgroundColor.withAlphaComponent(0.3).cgColor
-        container.layer?.cornerRadius = 6
-        
-        // Icon
-        let iconLabel = NSTextField(labelWithString: event.statusIcon)
-        iconLabel.translatesAutoresizingMaskIntoConstraints = false
-        iconLabel.font = NSFont.systemFont(ofSize: 12)
-        iconLabel.alignment = .center
-        
-        // Title
-        let titleLabel = NSTextField(labelWithString: event.title)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = NSFont.systemFont(ofSize: 12, weight: .medium)
-        titleLabel.textColor = NSColor.labelColor
-        titleLabel.lineBreakMode = .byTruncatingTail
-        
-        // Time
-        let timeLabel = NSTextField(labelWithString: event.timeString)
-        timeLabel.translatesAutoresizingMaskIntoConstraints = false
-        timeLabel.font = NSFont.systemFont(ofSize: 10, weight: .regular)
-        timeLabel.textColor = NSColor.secondaryLabelColor
-        
-        // Location (if available)
-        var locationLabel: NSTextField?
-        if let location = event.location, !location.isEmpty {
-            locationLabel = NSTextField(labelWithString: "📍 \(location)")
-            locationLabel!.translatesAutoresizingMaskIntoConstraints = false
-            locationLabel!.font = NSFont.systemFont(ofSize: 9, weight: .regular)
-            locationLabel!.textColor = NSColor.tertiaryLabelColor
-            locationLabel!.lineBreakMode = .byTruncatingTail
-        }
-        
-        container.addSubview(iconLabel)
-        container.addSubview(titleLabel)
-        container.addSubview(timeLabel)
-        if let locationLabel = locationLabel {
-            container.addSubview(locationLabel)
-        }
-        
-        var constraints: [NSLayoutConstraint] = [
-            container.heightAnchor.constraint(greaterThanOrEqualToConstant: locationLabel != nil ? 52 : 40),
-            
-            iconLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 8),
-            iconLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 6),
-            iconLabel.widthAnchor.constraint(equalToConstant: 16),
-            
-            titleLabel.leadingAnchor.constraint(equalTo: iconLabel.trailingAnchor, constant: 6),
-            titleLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 4),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -8),
-            
-            timeLabel.leadingAnchor.constraint(equalTo: iconLabel.trailingAnchor, constant: 6),
-            timeLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
-            timeLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -8)
-        ]
-        
-        if let locationLabel = locationLabel {
-            constraints.append(contentsOf: [
-                locationLabel.leadingAnchor.constraint(equalTo: iconLabel.trailingAnchor, constant: 6),
-                locationLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 1),
-                locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -8),
-                locationLabel.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -4)
-            ])
-        } else {
-            constraints.append(
-                timeLabel.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -4)
-            )
-        }
-        
-        NSLayoutConstraint.activate(constraints)
-        
-        return container
-    }
     
     private func updateCalendarIcon() {
         let today = Calendar.current.component(.day, from: Date())
@@ -630,8 +873,8 @@ class CalendarNotchView: NSView {
     }
     
     private func shouldRefreshEvents() -> Bool {
-        // Always refresh if no events or if it's a new day
-        return events.isEmpty || !Calendar.current.isDateInToday(events.first?.startDate ?? Date.distantPast)
+        // Always refresh if no events or if it's a new month
+        return events.isEmpty || !Calendar.current.isDate(currentDisplayDate, equalTo: Date(), toGranularity: .month)
     }
     
     private func hideDropdown() {

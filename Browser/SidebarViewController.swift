@@ -331,6 +331,7 @@ class SidebarViewController: NSViewController {
         favoritesView = SidebarFavoritesView()
         favoritesView.translatesAutoresizingMaskIntoConstraints = false
         favoritesView.delegate = self
+        print("🎯 SidebarViewController: Setting favoritesView.delegate = self")
         view.addSubview(favoritesView)
         
         NSLayoutConstraint.activate([
@@ -809,13 +810,14 @@ class SidebarViewController: NSViewController {
 // MARK: - SidebarFavoritesViewDelegate
 extension SidebarViewController: SidebarFavoritesViewDelegate {
     func sidebarFavoritesView(_ favoritesView: SidebarFavoritesView, didClickFavorite bookmark: Bookmark) {
-        // Hide quick search if it's currently visible
-        NotificationCenter.default.post(name: .hideQuickSearch, object: nil)
+        print("🌐 SidebarViewController: received bookmark click: \(bookmark.title) -> \(bookmark.url)")
         
         // Navigate in current tab, or create one with the URL if none exists
         if let currentTab = TabManager.shared.activeTab {
+            print("✅ SidebarViewController: navigating existing tab to: \(bookmark.url)")
             currentTab.navigate(to: bookmark.url)
         } else {
+            print("✅ SidebarViewController: creating new tab with: \(bookmark.url)")
             // Only create a new tab if there are absolutely no tabs - but navigate directly to URL
             TabManager.shared.createNewTab(with: bookmark.url)
         }

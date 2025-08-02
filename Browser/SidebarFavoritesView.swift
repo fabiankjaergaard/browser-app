@@ -330,8 +330,13 @@ class FavoriteGroupView: NSView {
     }
     
     @objc private func bookmarkClicked(_ sender: NSButton) {
-        guard sender.tag >= 0, sender.tag < group.bookmarks.count else { return }
+        guard sender.tag >= 0, sender.tag < group.bookmarks.count else { 
+            print("❌ Invalid tag or bookmark index: tag=\(sender.tag), count=\(group.bookmarks.count)")
+            return 
+        }
         let bookmark = group.bookmarks[sender.tag]
+        print("🎯 FavoriteGroupView: bookmark clicked: \(bookmark.title) -> \(bookmark.url)")
+        
         // Find the parent SidebarFavoritesView to pass to delegate
         var parentView: SidebarFavoritesView?
         var currentView: NSView? = self
@@ -342,12 +347,23 @@ class FavoriteGroupView: NSView {
             }
             currentView = currentView?.superview
         }
-        delegate?.sidebarFavoritesView(parentView!, didClickFavorite: bookmark)
+        
+        if let parentView = parentView, let delegate = delegate {
+            print("✅ FavoriteGroupView: calling delegate with bookmark: \(bookmark.title)")
+            delegate.sidebarFavoritesView(parentView, didClickFavorite: bookmark)
+        } else {
+            print("❌ FavoriteGroupView: parentView=\(parentView != nil), delegate=\(delegate != nil)")
+        }
     }
 }
 
 class SidebarFavoritesView: NSView {
-    weak var delegate: SidebarFavoritesViewDelegate?
+    weak var delegate: SidebarFavoritesViewDelegate? {
+        didSet {
+            print("🔗 SidebarFavoritesView.delegate set to: \(delegate != nil ? "✅" : "❌")")
+            updateGroupDelegates()
+        }
+    }
     
     private var stackView: NSStackView!
     
@@ -376,6 +392,7 @@ class SidebarFavoritesView: NSView {
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
+        print("🏗️ SidebarFavoritesView init - delegate: \(delegate != nil ? "✅" : "❌")")
         setupView()
         loadFavoriteGroups()
     }
@@ -827,6 +844,7 @@ class SidebarFavoritesView: NSView {
         for (index, group) in favoriteGroups.enumerated() {
             let groupView = FavoriteGroupView(group: group)
             groupView.delegate = delegate
+            print("🔗 Setting delegate for group: \(group.name), delegate: \(delegate != nil ? "✅" : "❌")")
             groupViews.append(groupView)
             stackView.addArrangedSubview(groupView)
             
@@ -1203,6 +1221,14 @@ class SidebarFavoritesView: NSView {
         }
         
         print("✅ Favorite removed from BookmarkManager")
+    }
+    
+    private func updateGroupDelegates() {
+        print("🔗 updateGroupDelegates called - updating \(groupViews.count) group views")
+        for groupView in groupViews {
+            groupView.delegate = delegate
+            print("🔗 Updated delegate for group view")
+        }
     }
     
     // MARK: - Swap functionality

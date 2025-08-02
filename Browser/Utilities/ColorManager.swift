@@ -4,6 +4,12 @@ import Cocoa
 class ColorManager {
     static let shared = ColorManager()
     
+    // Dynamic theme properties
+    private var dynamicAccent: NSColor?
+    private var dynamicBrightness: Float = 0.5
+    private var dynamicContrast: Float = 0.5
+    private var dynamicSaturation: Float = 0.5
+    
     private init() {}
     
     // MARK: - Primary Colors
@@ -23,13 +29,19 @@ class ColorManager {
         return NSColor(hex: "3a3a3a") // #3a3a3a Lighter gray for hover states
     }
     
-    /// Accent color - Subtle blue for interactive elements
+    /// Accent color - Subtle blue for interactive elements (dynamic)
     static var accent: NSColor {
+        if let dynamicAccent = shared.dynamicAccent {
+            return shared.adjustColorForTheme(dynamicAccent)
+        }
         return NSColor(hex: "4a9eff") // #4a9eff Elegant blue, inspired by macOS but muted
     }
     
     /// Accent color hover state - slightly brighter blue
     static var accentHover: NSColor {
+        if let dynamicAccent = shared.dynamicAccent {
+            return shared.adjustColorForTheme(dynamicAccent, brightnessOffset: 0.2)
+        }
         return NSColor(hex: "6db1ff") // #6db1ff Lighter blue for hover states
     }
     
@@ -247,6 +259,65 @@ class ColorManager {
         
         image.unlockFocus()
         return image
+    }
+    
+    // MARK: - Dynamic Theme Support
+    
+    /// Updates dynamic colors for custom themes
+    func updateDynamicColors(accent: NSColor, brightness: Float, contrast: Float, saturation: Float) {
+        dynamicAccent = accent
+        dynamicBrightness = brightness
+        dynamicContrast = contrast
+        dynamicSaturation = saturation
+        
+        print("🎨 Updated dynamic colors - Accent: \(accent), Brightness: \(brightness), Contrast: \(contrast), Saturation: \(saturation)")
+    }
+    
+    /// Resets to default colors
+    func resetToDefaults() {
+        dynamicAccent = nil
+        dynamicBrightness = 0.5
+        dynamicContrast = 0.5
+        dynamicSaturation = 0.5
+        
+        print("🎨 Reset to default colors")
+    }
+    
+    /// Adjusts a color based on current theme settings
+    private func adjustColorForTheme(_ color: NSColor, brightnessOffset: Float = 0) -> NSColor {
+        guard let hsbColor = color.usingColorSpace(.genericRGB) else { return color }
+        
+        let currentBrightness = Float(hsbColor.brightnessComponent)
+        let currentSaturation = Float(hsbColor.saturationComponent)
+        
+        // Apply brightness adjustment
+        let adjustedBrightness = min(1.0, max(0.0, currentBrightness * dynamicBrightness + brightnessOffset))
+        
+        // Apply saturation adjustment
+        let adjustedSaturation = min(1.0, max(0.0, currentSaturation * dynamicSaturation))
+        
+        // Apply contrast (affects the relationship between brightness values)
+        let contrastAdjustedBrightness = applyContrast(adjustedBrightness, contrast: dynamicContrast)
+        
+        return NSColor(
+            calibratedHue: hsbColor.hueComponent,
+            saturation: CGFloat(adjustedSaturation),
+            brightness: CGFloat(contrastAdjustedBrightness),
+            alpha: hsbColor.alphaComponent
+        )
+    }
+    
+    /// Applies contrast adjustment to brightness value
+    private func applyContrast(_ brightness: Float, contrast: Float) -> Float {
+        // Contrast formula: new_value = (old_value - 0.5) * contrast + 0.5
+        let centered = brightness - 0.5
+        let contrasted = centered * (contrast * 2.0) // Scale contrast to 0-2 range
+        return min(1.0, max(0.0, contrasted + 0.5))
+    }
+    
+    /// Gets current dynamic theme values
+    func getCurrentThemeValues() -> (accent: NSColor?, brightness: Float, contrast: Float, saturation: Float) {
+        return (dynamicAccent, dynamicBrightness, dynamicContrast, dynamicSaturation)
     }
 }
 
