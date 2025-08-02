@@ -145,91 +145,164 @@ class TTYDTerminalPanel: NSViewController {
     
     private func setupFloatingPanel() {
         view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.95).cgColor
+        view.layer?.backgroundColor = NSColor.clear.cgColor
         
-        // Add subtle blur effect for sidebar
+        // Modern frosted glass background with rounded corners
         let visualEffectView = NSVisualEffectView()
-        visualEffectView.material = .sidebar
+        visualEffectView.material = .popover
         visualEffectView.blendingMode = .behindWindow
         visualEffectView.state = .active
+        visualEffectView.wantsLayer = true
+        visualEffectView.layer?.cornerRadius = 16
+        visualEffectView.layer?.borderWidth = 1
+        visualEffectView.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.2).cgColor
         visualEffectView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(visualEffectView)
         
+        // Add subtle shadow for depth
+        visualEffectView.shadow = NSShadow()
+        visualEffectView.shadow?.shadowOffset = NSSize(width: 0, height: 4)
+        visualEffectView.shadow?.shadowBlurRadius = 12
+        visualEffectView.shadow?.shadowColor = NSColor.black.withAlphaComponent(0.15)
+        
         NSLayoutConstraint.activate([
-            visualEffectView.topAnchor.constraint(equalTo: view.topAnchor),
-            visualEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            visualEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            visualEffectView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            visualEffectView.topAnchor.constraint(equalTo: view.topAnchor, constant: 8),
+            visualEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            visualEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            visualEffectView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8)
         ])
     }
     
     private func setupHeader() {
         headerView = NSView()
         headerView.translatesAutoresizingMaskIntoConstraints = false
+        headerView.wantsLayer = true
+        
+        // Create container with subtle background
+        let headerBackground = NSView()
+        headerBackground.translatesAutoresizingMaskIntoConstraints = false
+        headerBackground.wantsLayer = true
+        headerBackground.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.05).cgColor
+        headerBackground.layer?.cornerRadius = 8
+        headerView.addSubview(headerBackground)
+        
         view.addSubview(headerView)
         
-        // Terminal title with icon
-        let iconLabel = NSTextField(labelWithString: "🖥️")
-        iconLabel.translatesAutoresizingMaskIntoConstraints = false
-        iconLabel.font = NSFont.systemFont(ofSize: 18)
-        headerView.addSubview(iconLabel)
+        // Traffic light style indicators
+        let trafficLightContainer = NSStackView()
+        trafficLightContainer.translatesAutoresizingMaskIntoConstraints = false
+        trafficLightContainer.orientation = .horizontal
+        trafficLightContainer.spacing = 8
         
+        let closeLight = createTrafficLight(color: .systemRed)
+        let minimizeLight = createTrafficLight(color: .systemYellow)
+        let expandLight = createTrafficLight(color: .systemGreen)
+        
+        trafficLightContainer.addArrangedSubview(closeLight)
+        trafficLightContainer.addArrangedSubview(minimizeLight)
+        trafficLightContainer.addArrangedSubview(expandLight)
+        
+        headerView.addSubview(trafficLightContainer)
+        
+        // Terminal title with modern typography
         titleLabel = NSTextField(labelWithString: "Terminal")
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = NSFont.systemFont(ofSize: 16, weight: .semibold)
-        titleLabel.textColor = NSColor.white
+        titleLabel.font = NSFont.systemFont(ofSize: 14, weight: .medium)
+        titleLabel.textColor = NSColor.labelColor
+        titleLabel.backgroundColor = NSColor.clear
+        titleLabel.isBordered = false
         headerView.addSubview(titleLabel)
         
-        // Status indicator
-        let statusIndicator = NSView()
-        statusIndicator.translatesAutoresizingMaskIntoConstraints = false
-        statusIndicator.wantsLayer = true
-        statusIndicator.layer?.backgroundColor = NSColor.systemGreen.cgColor
-        statusIndicator.layer?.cornerRadius = 4
-        headerView.addSubview(statusIndicator)
+        // Status indicator with modern design
+        let statusContainer = NSView()
+        statusContainer.translatesAutoresizingMaskIntoConstraints = false
+        statusContainer.wantsLayer = true
+        statusContainer.layer?.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.15).cgColor
+        statusContainer.layer?.cornerRadius = 10
+        headerView.addSubview(statusContainer)
         
-        let statusLabel = NSTextField(labelWithString: "ttyd Ready")
+        let statusDot = NSView()
+        statusDot.translatesAutoresizingMaskIntoConstraints = false
+        statusDot.wantsLayer = true
+        statusDot.layer?.backgroundColor = NSColor.systemGreen.cgColor
+        statusDot.layer?.cornerRadius = 3
+        statusContainer.addSubview(statusDot)
+        
+        let statusLabel = NSTextField(labelWithString: "Ready")
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.font = NSFont.systemFont(ofSize: 11, weight: .medium)
-        statusLabel.textColor = NSColor.secondaryLabelColor
-        headerView.addSubview(statusLabel)
+        statusLabel.font = NSFont.systemFont(ofSize: 10, weight: .medium)
+        statusLabel.textColor = NSColor.systemGreen
+        statusLabel.backgroundColor = NSColor.clear
+        statusLabel.isBordered = false
+        statusContainer.addSubview(statusLabel)
         
-        // Close button
+        // Modern close button
         closeButton = NSButton()
         closeButton.translatesAutoresizingMaskIntoConstraints = false
-        closeButton.image = NSImage(systemSymbolName: "xmark", accessibilityDescription: "Close")
+        closeButton.image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: "Close")
         closeButton.bezelStyle = .regularSquare
         closeButton.isBordered = false
-        closeButton.contentTintColor = NSColor.secondaryLabelColor
+        closeButton.contentTintColor = NSColor.tertiaryLabelColor
         closeButton.target = self
         closeButton.action = #selector(closePanel)
+        
+        // Hover effect for close button
+        let trackingArea = NSTrackingArea(
+            rect: .zero,
+            options: [.activeInKeyWindow, .mouseEnteredAndExited, .inVisibleRect],
+            owner: closeButton,
+            userInfo: nil
+        )
+        closeButton.addTrackingArea(trackingArea)
+        
         headerView.addSubview(closeButton)
         
         NSLayoutConstraint.activate([
-            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
-            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            headerView.heightAnchor.constraint(equalToConstant: 44),
+            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            headerView.heightAnchor.constraint(equalToConstant: 40),
             
-            iconLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor, constant: -6),
-            iconLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            headerBackground.topAnchor.constraint(equalTo: headerView.topAnchor),
+            headerBackground.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            headerBackground.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
+            headerBackground.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
             
-            titleLabel.centerYAnchor.constraint(equalTo: iconLabel.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: iconLabel.trailingAnchor, constant: 8),
+            trafficLightContainer.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            trafficLightContainer.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 12),
             
-            statusIndicator.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            statusIndicator.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            statusIndicator.widthAnchor.constraint(equalToConstant: 8),
-            statusIndicator.heightAnchor.constraint(equalToConstant: 8),
+            titleLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            titleLabel.centerXAnchor.constraint(equalTo: headerView.centerXAnchor),
             
-            statusLabel.centerYAnchor.constraint(equalTo: statusIndicator.centerYAnchor),
-            statusLabel.leadingAnchor.constraint(equalTo: statusIndicator.trailingAnchor, constant: 6),
+            statusContainer.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
+            statusContainer.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor, constant: -12),
+            statusContainer.heightAnchor.constraint(equalToConstant: 20),
+            
+            statusDot.centerYAnchor.constraint(equalTo: statusContainer.centerYAnchor),
+            statusDot.leadingAnchor.constraint(equalTo: statusContainer.leadingAnchor, constant: 6),
+            statusDot.widthAnchor.constraint(equalToConstant: 6),
+            statusDot.heightAnchor.constraint(equalToConstant: 6),
+            
+            statusLabel.centerYAnchor.constraint(equalTo: statusContainer.centerYAnchor),
+            statusLabel.leadingAnchor.constraint(equalTo: statusDot.trailingAnchor, constant: 4),
+            statusLabel.trailingAnchor.constraint(equalTo: statusContainer.trailingAnchor, constant: -6),
             
             closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            closeButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
-            closeButton.widthAnchor.constraint(equalToConstant: 24),
-            closeButton.heightAnchor.constraint(equalToConstant: 24)
+            closeButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -12),
+            closeButton.widthAnchor.constraint(equalToConstant: 20),
+            closeButton.heightAnchor.constraint(equalToConstant: 20)
         ])
+    }
+    
+    private func createTrafficLight(color: NSColor) -> NSView {
+        let light = NSView()
+        light.translatesAutoresizingMaskIntoConstraints = false
+        light.wantsLayer = true
+        light.layer?.backgroundColor = color.cgColor
+        light.layer?.cornerRadius = 6
+        light.widthAnchor.constraint(equalToConstant: 12).isActive = true
+        light.heightAnchor.constraint(equalToConstant: 12).isActive = true
+        return light
     }
     
     private func setupWebView() {
@@ -240,20 +313,48 @@ class TTYDTerminalPanel: NSViewController {
         config.preferences.setValue(true, forKey: "developerExtrasEnabled")
         #endif
         
+        // Create a container for the terminal with modern styling
+        let terminalContainer = NSView()
+        terminalContainer.translatesAutoresizingMaskIntoConstraints = false
+        terminalContainer.wantsLayer = true
+        terminalContainer.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.03).cgColor
+        terminalContainer.layer?.cornerRadius = 12
+        terminalContainer.layer?.borderWidth = 1
+        terminalContainer.layer?.borderColor = NSColor.separatorColor.withAlphaComponent(0.1).cgColor
+        view.addSubview(terminalContainer)
+        
         webView = WKWebView(frame: .zero, configuration: config)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
+        webView.wantsLayer = true
+        webView.layer?.cornerRadius = 8
+        webView.layer?.masksToBounds = true
         
-        // Disable drag and drop on webView so our container can handle it
+        // Modern terminal styling
         webView.setValue(false, forKey: "allowsLinkPreview")
+        webView.setValue(false, forKey: "drawsBackground")
         
-        view.addSubview(webView)
+        // Add subtle inner shadow for depth
+        let innerShadow = CALayer()
+        innerShadow.frame = webView.bounds
+        innerShadow.shadowColor = NSColor.black.cgColor
+        innerShadow.shadowOffset = CGSize(width: 0, height: 2)
+        innerShadow.shadowOpacity = 0.1
+        innerShadow.shadowRadius = 4
+        innerShadow.cornerRadius = 8
+        
+        terminalContainer.addSubview(webView)
         
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 12),
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
+            terminalContainer.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 16),
+            terminalContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            terminalContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            terminalContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -24),
+            
+            webView.topAnchor.constraint(equalTo: terminalContainer.topAnchor, constant: 8),
+            webView.leadingAnchor.constraint(equalTo: terminalContainer.leadingAnchor, constant: 8),
+            webView.trailingAnchor.constraint(equalTo: terminalContainer.trailingAnchor, constant: -8),
+            webView.bottomAnchor.constraint(equalTo: terminalContainer.bottomAnchor, constant: -8)
         ])
         
         // Add a transparent overlay for drag and drop
